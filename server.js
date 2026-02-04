@@ -202,7 +202,7 @@ app.post('/api/generate', async (req, res) => {
       const ai = getGeminiInstance();
 
       const response = await ai.models.generateContent({
-        model: config.model || 'gemini-2.0-flash-exp',
+        model: config.model || 'gemini-1.5-flash',
         contents: contents,
         config: {
           ...config,
