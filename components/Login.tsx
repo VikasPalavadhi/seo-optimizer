@@ -6,7 +6,7 @@ interface LoginProps {
 }
 
 // Valid users with their credentials
-const VALID_USERS = {
+const VALID_USERS: Record<string, string> = {
   'hakan': 'WPBmartech@i2025',
   'vikas': 'WPBmartech@i2025',
   'sudhir': 'WPBmartech@i2025'
