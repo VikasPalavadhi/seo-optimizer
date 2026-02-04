@@ -5,13 +5,29 @@ interface LoginProps {
   onLogin: (user: string) => void;
 }
 
+// Valid users with their credentials
+const VALID_USERS = {
+  'hakan': 'WPBmartech@i2025',
+  'vikas': 'WPBmartech@i2025',
+  'sudhir': 'WPBmartech@i2025'
+};
+
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) onLogin(email);
+    setError('');
+
+    // Validate credentials
+    const lowercaseUsername = username.toLowerCase();
+    if (VALID_USERS[lowercaseUsername as keyof typeof VALID_USERS] === password) {
+      onLogin(username);
+    } else {
+      setError('Invalid credentials. Please check your username and password.');
+    }
   };
 
   return (
@@ -28,15 +44,20 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-[1.5rem] text-sm font-semibold">
+              {error}
+            </div>
+          )}
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Work Email</label>
-            <input 
-              type="email" 
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+            <input
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full px-6 py-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 outline-none transition-all font-semibold text-slate-700 placeholder:text-slate-300"
-              placeholder="name@company.ae"
+              placeholder="Enter username"
             />
           </div>
           <div className="space-y-2">
