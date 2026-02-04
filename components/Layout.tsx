@@ -21,8 +21,22 @@ const Layout: React.FC<LayoutProps> = ({
   children, view, setView, user, onLogout, activeProfile, setActiveProfile, currentGeneration,
   onAddEnhancedVariant, onAddEnhancedSchema
 }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Sidebar closed by default on mobile, open on desktop
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const themeStyles = {
     '--brand-primary': activeProfile.primaryColor,
@@ -35,22 +49,22 @@ const Layout: React.FC<LayoutProps> = ({
     <div className="min-h-screen flex flex-col font-inter bg-gradient-to-br from-indigo-50 via-purple-50/50 to-teal-50 selection:bg-indigo-100 transition-all duration-500" style={themeStyles}>
       
       {/* Top Navigation Bar - High Fidelity */}
-      <header className="sticky top-0 z-50 h-16 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 flex items-center justify-between px-6">
-        <div className="flex items-center gap-6">
-          <button 
+      <header className="sticky top-0 z-50 h-14 md:h-16 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 flex items-center justify-between px-3 md:px-6">
+        <div className="flex items-center gap-3 md:gap-6">
+          <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2.5 hover:bg-slate-100 rounded-xl transition-all text-[#414042] active:scale-90"
+            className="p-2 md:p-2.5 hover:bg-slate-100 rounded-xl transition-all text-[#414042] active:scale-90"
             title="Toggle Sidebar"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="flex items-center gap-2.5 group cursor-pointer" onClick={() => setView('dashboard')}>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-base shadow-lg transition-transform group-hover:rotate-6 group-hover:scale-110" style={{ backgroundColor: 'var(--brand-primary)' }}>
+          <div className="flex items-center gap-2 md:gap-2.5 group cursor-pointer" onClick={() => setView('dashboard')}>
+            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl flex items-center justify-center text-white font-black text-sm md:text-base shadow-lg transition-transform group-hover:rotate-6 group-hover:scale-110" style={{ backgroundColor: 'var(--brand-primary)' }}>
               S
             </div>
-            <h1 className="text-xl font-black tracking-tight text-slate-900">
+            <h1 className="text-base md:text-xl font-black tracking-tight text-slate-900">
               SEO <span className="bg-clip-text text-transparent bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-accent)]">Guru</span>
             </h1>
           </div>
@@ -96,12 +110,20 @@ const Layout: React.FC<LayoutProps> = ({
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        
+
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar - Apple Inspired */}
-        <aside 
-          className={`bg-white border-r border-slate-200/50 flex flex-col transition-all duration-500 ease-in-out ${isSidebarOpen ? 'w-80' : 'w-0 opacity-0 pointer-events-none'}`}
+        <aside
+          className={`bg-white border-r border-slate-200/50 flex flex-col transition-all duration-500 ease-in-out fixed lg:relative z-50 lg:z-auto h-full top-0 left-0 ${isSidebarOpen ? 'translate-x-0 w-80' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:opacity-0 lg:pointer-events-none'}`}
         >
-          <div className="p-8 space-y-12 min-w-[320px] flex flex-col h-full">
+          <div className="p-6 md:p-8 space-y-8 md:space-y-12 min-w-[320px] flex flex-col h-full overflow-y-auto">
             <nav className="space-y-3">
               <label className="text-[10px] font-black text-[#414042]/40 uppercase tracking-[0.4em] ml-4 mb-4 block">Navigation</label>
               <button
@@ -150,8 +172,8 @@ const Layout: React.FC<LayoutProps> = ({
         </aside>
 
         {/* Main Workspace Area */}
-        <main className="flex-1 overflow-y-auto relative scroll-smooth bg-gradient-to-br from-indigo-50/30 via-purple-50/20 to-teal-50/30">
-          <div className="max-w-7xl mx-auto p-6 md:p-12 lg:p-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <main className="flex-1 overflow-y-auto relative scroll-smooth bg-gradient-to-br from-indigo-50/30 via-purple-50/20 to-teal-50/30 w-full">
+          <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-12 lg:p-16 xl:p-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             {children}
           </div>
         </main>

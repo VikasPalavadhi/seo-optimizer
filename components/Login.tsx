@@ -32,14 +32,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50/50 to-teal-50 flex items-center justify-center p-6 selection:bg-indigo-100">
-      <div className="bg-white/80 backdrop-blur-2xl p-10 md:p-14 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] max-w-lg w-full border border-white/50 animate-in zoom-in-95 duration-700">
+      <div className="bg-white/80 backdrop-blur-2xl p-8 sm:p-10 md:p-14 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] max-w-lg w-full border border-white/50 animate-in zoom-in-95 duration-700">
         <div className="text-center mb-12">
           <div className="inline-flex p-5 rounded-3xl bg-indigo-50 text-indigo-600 mb-6 shadow-sm border border-indigo-100/50">
             <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight">SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Guru</span></h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Guru</span></h2>
           <p className="text-slate-500 mt-4 font-medium tracking-tight">Enterprise SEO intelligence powered by AI</p>
         </div>
 

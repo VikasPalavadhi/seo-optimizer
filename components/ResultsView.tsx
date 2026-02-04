@@ -66,7 +66,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
              <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
              <span className="text-[#414042] text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Protocol v3.1</span>
           </div>
-          <h2 className="text-5xl font-black text-slate-900 tracking-tighter leading-none">SEO Optimization Details</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none">SEO Optimization Details</h2>
           <p className="text-[#414042] font-medium text-xl leading-relaxed">
             Performance breakdown for <span className="font-bold border-b-2 border-slate-200 pb-0.5">{generation.url}</span>
           </p>
@@ -74,12 +74,12 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 bg-white/80 backdrop-blur-xl p-2 rounded-[3rem] w-fit border border-slate-100 shadow-xl overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 md:gap-2 bg-white/80 backdrop-blur-xl p-1.5 md:p-2 rounded-[2rem] md:rounded-[3rem] w-fit border border-slate-100 shadow-xl overflow-x-auto no-scrollbar">
         {tabs.filter(t => !t.hidden).map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-10 py-4 rounded-[2.5rem] text-[11px] font-black uppercase tracking-[0.3em] transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-xl' : 'text-[#414042] hover:text-slate-900 opacity-60 hover:opacity-100'}`}
+            className={`px-4 sm:px-6 md:px-10 py-3 md:py-4 rounded-[1.5rem] md:rounded-[2.5rem] text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-xl' : 'text-[#414042] hover:text-slate-900 opacity-60 hover:opacity-100'}`}
             style={activeTab === tab.id ? { backgroundColor: activeProfile.primaryColor } : {}}
           >
             {tab.label}
@@ -95,7 +95,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
                 const isWinner = generation.aiRecommendation?.winnerIndex === idx;
                 const isEnhanced = variant.isEnhanced === true;
                 return (
-                  <div key={idx} className={`relative group bg-white border-2 rounded-[4rem] p-10 md:p-16 transition-all ${isWinner ? 'shadow-3xl' : isEnhanced ? 'border-[#63bfb5] hover:border-[#63bfb5]' : 'border-slate-100 hover:border-indigo-100'}`} style={isWinner ? { borderColor: activeProfile.primaryColor, boxShadow: `0 40px 80px -20px ${activeProfile.primaryColor}15` } : {}}>
+                  <div key={idx} className={`relative group bg-white border-2 rounded-[4rem] p-6 sm:p-8 md:p-12 lg:p-16 transition-all ${isWinner ? 'shadow-3xl' : isEnhanced ? 'border-[#63bfb5] hover:border-[#63bfb5]' : 'border-slate-100 hover:border-indigo-100'}`} style={isWinner ? { borderColor: activeProfile.primaryColor, boxShadow: `0 40px 80px -20px ${activeProfile.primaryColor}15` } : {}}>
                     {isWinner && (
                       <div
                         className="absolute -top-7 left-12 px-10 py-5 text-white text-[11px] font-black uppercase tracking-[0.4em] rounded-full shadow-2xl flex items-center gap-4"
@@ -115,11 +115,11 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
                       </div>
                     )}
                     <div className="flex flex-col lg:flex-row gap-12 md:gap-20">
-                      <div className="flex-1 space-y-10 md:space-y-12">
+                      <div className="flex-1 space-y-6 md:space-y-10 lg:space-y-12">
                         <div className="space-y-4">
                           <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40">Primary H1</label>
                           <div className="p-8 bg-[#fbfbfd] rounded-[2rem] border border-slate-100 group-hover:bg-white group-hover:border-indigo-100 transition-all shadow-sm">
-                            <p className="text-2xl font-black text-slate-900 leading-tight tracking-tight">{variant.metaTitle}</p>
+                            <p className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 leading-tight tracking-tight">{variant.metaTitle}</p>
                           </div>
                         </div>
                         <div className="space-y-4">

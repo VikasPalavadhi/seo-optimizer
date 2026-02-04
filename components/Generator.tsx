@@ -137,11 +137,11 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete }) => {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-3">
-          <h2 className="text-6xl font-black text-slate-900 tracking-tighter">SEO Generator</h2>
-          <p className="text-[#414042] font-medium text-xl leading-relaxed">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter">SEO Generator</h2>
+          <p className="text-[#414042] font-medium text-base md:text-xl leading-relaxed">
             Optimizing for <span style={{ color: profile.primaryColor }} className="font-bold underline decoration-2 underline-offset-8">{profile.name}</span>.
           </p>
         </div>
@@ -152,7 +152,7 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete }) => {
         )}
       </header>
 
-      <div className="bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.12)] border border-slate-200 p-8 md:p-12 overflow-hidden">
+      <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.12)] border border-slate-200 p-5 sm:p-6 md:p-8 lg:p-12 overflow-hidden">
         <div className="flex flex-col gap-8">
 
           {/* Main Input Toggle Area */}
@@ -234,7 +234,7 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete }) => {
           <div className="space-y-8 pt-8 border-t border-slate-50">
             <section className="space-y-6">
               <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] ml-2 block opacity-60">Target Search Intent</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
                 {['auto', ...PAGE_TYPES].map(type => (
                   <button
                     key={type}
