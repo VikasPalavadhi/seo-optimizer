@@ -83,7 +83,7 @@ export const generateContent = async (
   }
 
   // For Gemini, continue with direct API call but update model name
-  const modelName = isUrl ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
+  const modelName = isUrl ? 'gemini-1.5-pro-latest' : 'gemini-1.5-flash-latest';
   const ai = getAiInstance();
 
   const brandContext = `
