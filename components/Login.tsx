@@ -40,7 +40,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </svg>
           </div>
           <h2 className="text-4xl font-black text-slate-900 tracking-tight">SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Guru</span></h2>
-          <p className="text-slate-500 mt-4 font-medium tracking-tight">Enterprise SEO intelligence at your fingertips.</p>
+          <p className="text-slate-500 mt-4 font-medium tracking-tight">Enterprise SEO intelligence powered by AI</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
