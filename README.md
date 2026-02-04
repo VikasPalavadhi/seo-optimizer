@@ -2,6 +2,8 @@
 
 Enterprise SEO optimization tool powered by AI (Google Gemini & OpenAI GPT-4). Generate SEO variants, schema markup, and strategic recommendations for your web pages.
 
+**🚀 Auto-deployment enabled**: Changes pushed to main branch automatically deploy to production at https://seo.xopenai.in
+
 ## Features
 
 - **Dual AI Model Support**: Choose between Google Gemini 2.0 Flash or OpenAI GPT-4o
