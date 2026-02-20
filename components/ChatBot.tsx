@@ -45,7 +45,12 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/chat', {
+      // Use relative URL in production, localhost in development
+      const apiUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:3001/api/chat'
+        : '/api/chat';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

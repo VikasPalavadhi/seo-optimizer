@@ -45,7 +45,12 @@ async function generateWithBackend(
   isUrl: boolean,
   modelProvider: ModelProvider
 ): Promise<GeminiResponse & { groundingSources: GroundingSource[] }> {
-  const response = await fetch('http://localhost:3001/api/generate', {
+  // Use relative URL in production, localhost in development
+  const apiUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:3001/api/generate'
+    : '/api/generate';
+
+  const response = await fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

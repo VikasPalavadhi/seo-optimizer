@@ -145,15 +145,31 @@ Return the schema as a complete @graph JSON object with all required nodes.
 `;
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3007;
 
 // 1. Security Headers
 app.use(helmet());
 
-// 2. CORS - Restrict this to your DigitalOcean domain in production
+// 2. CORS - Allow production domain and localhost for development
+const allowedOrigins = [
+  'https://seo.xopenai.in',
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:3000'  // Alternative dev port
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*', 
-  methods: ['POST'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['POST', 'GET', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
 
