@@ -233,6 +233,20 @@ app.post('/api/generate', async (req, res) => {
 
         ${BANKING_SCHEMA_INSTRUCTION}
 
+        ### EXTRACTION REQUIREMENTS:
+        For the "mainTextPreview" field, you MUST extract a COMPREHENSIVE summary including:
+        - Product/page title and subtitle
+        - ALL key features, benefits, and selling points
+        - Welcome offers, rewards, and incentives
+        - Membership benefits and privileges
+        - Rates, fees, and financial details (use "Profit Rate" for Emirates Islamic)
+        - Eligibility criteria if mentioned
+        - Important terms and conditions
+        - Call-to-action messages
+
+        The mainTextPreview should be 200-500 words and give users a complete understanding of what content was analyzed.
+        DO NOT just extract 1-2 sentences. Extract ALL meaningful content that describes the product/page.
+
         ### CRITICAL CONSTRAINTS:
         - NO mentions of "AI", "Gemini", or "LLM" in user-facing output text.
         - For Emirates Islamic (emiratesislamic.ae): ALWAYS use "Profit Rate" instead of "Interest Rate"
