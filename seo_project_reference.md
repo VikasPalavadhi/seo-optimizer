@@ -342,6 +342,181 @@ Secrets are like locked safes in GitHub where you store sensitive information (l
 
 ---
 
+## Environment Detection & API Routing
+
+### Overview
+
+The application automatically detects whether it's running in **development** (localhost) or **production** (deployed server) and routes API calls accordingly. This ensures seamless operation in both environments without manual configuration.
+
+### Why Environment Detection is Needed
+
+**The Problem:**
+- In development: Frontend runs on `localhost:5173` (Vite), Backend runs on `localhost:3007`
+- In production: Frontend runs on `https://seo.xopenai.in`, Backend runs behind Nginx at `/api/*`
+- Hardcoded URLs would break in one environment or the other
+
+**The Solution:**
+Dynamic API URL detection based on `window.location.hostname`
+
+### How It Works
+
+**Detection Logic:**
+```javascript
+const apiUrl = window.location.hostname === 'localhost'
+  ? 'http://localhost:3007/api/generate'  // Development
+  : '/api/generate';                        // Production (relative URL)
+```
+
+**Development Environment (localhost):**
+- Frontend detects hostname is `localhost`
+- Makes API calls directly to `http://localhost:3007/api/generate`
+- Backend responds on port 3007
+
+**Production Environment (seo.xopenai.in):**
+- Frontend detects hostname is NOT `localhost`
+- Makes API calls to relative path `/api/generate`
+- Nginx intercepts and proxies to backend on port 3007
+- Browser sees it as `https://seo.xopenai.in/api/generate`
+
+### Implementation Files
+
+This logic is implemented in **three key files**:
+
+#### 1. **services/geminiService.ts** (Line 47-49)
+Handles SEO generation API calls:
+```typescript
+const apiUrl = window.location.hostname === 'localhost'
+  ? 'http://localhost:3007/api/generate'
+  : '/api/generate';
+
+const response = await fetch(apiUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ input, profile, isUrl, modelProvider })
+});
+```
+
+#### 2. **components/ChatBot.tsx** (Line 49-51)
+Handles AI chat assistant API calls:
+```typescript
+const apiUrl = window.location.hostname === 'localhost'
+  ? 'http://localhost:3007/api/chat'
+  : '/api/chat';
+
+const response = await fetch(apiUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ messages, context: currentGeneration })
+});
+```
+
+#### 3. **server.js** (Backend Configuration)
+Server listens on port 3007 and validates allowed origins:
+```javascript
+const PORT = process.env.PORT || 3007;
+
+const allowedOrigins = [
+  'https://seo.xopenai.in',      // Production
+  'http://localhost:5173',        // Vite dev server
+  'http://localhost:3000'         // Alternative dev port
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 ||
+        process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['POST', 'GET', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
+```
+
+### Request Flow Examples
+
+**Development Flow:**
+```
+User Action → Frontend (localhost:5173)
+           → Fetch to http://localhost:3007/api/generate
+           → Backend directly on port 3007
+           → Response back to frontend
+```
+
+**Production Flow:**
+```
+User Action → Frontend (https://seo.xopenai.in)
+           → Fetch to /api/generate (relative URL)
+           → Browser sends to https://seo.xopenai.in/api/generate
+           → Nginx receives request
+           → Nginx proxies to http://127.0.0.1:3007
+           → Backend processes request
+           → Response back through Nginx → Frontend
+```
+
+### CORS (Cross-Origin Resource Sharing)
+
+**What is CORS?**
+CORS is a security feature that prevents websites from making requests to different domains. Since our frontend and backend communicate, we need to explicitly allow this.
+
+**Allowed Origins:**
+- `https://seo.xopenai.in` - Production frontend
+- `http://localhost:5173` - Vite development server
+- `http://localhost:3000` - Alternative development port
+
+**Why It Matters:**
+Without proper CORS configuration, the browser blocks API requests with errors like:
+```
+Access to fetch at 'http://localhost:3007/api/generate' from origin 'http://localhost:5173'
+has been blocked by CORS policy
+```
+
+### Troubleshooting Environment Issues
+
+**Problem: API calls fail with CORS error**
+```bash
+# Check backend is running
+pm2 list
+
+# Check backend logs for CORS errors
+pm2 logs seo-schema-generator-api
+
+# Verify allowed origins in server.js match your frontend URL
+```
+
+**Problem: Development can't reach backend**
+```bash
+# Ensure backend is running on port 3007
+lsof -i :3007
+
+# If not running:
+cd /Users/sarivikky/Vikas/work/seo-schema-generator
+npm run dev:server  # Or start backend manually
+```
+
+**Problem: Production returns 404 for API calls**
+```bash
+# Check Nginx configuration
+sudo nginx -t
+
+# Verify proxy_pass is set correctly for /api/*
+cat /etc/nginx/sites-available/seo-schema-generator
+```
+
+### Best Practices
+
+1. **Never hardcode URLs** - Always use environment detection
+2. **Use relative URLs in production** - Let Nginx handle the routing
+3. **Keep CORS restrictive** - Only allow known origins
+4. **Test both environments** - Before deploying, verify locally first
+5. **Monitor logs** - Check both Nginx and PM2 logs after deployment
+
+---
+
 ## Common Tasks & Commands
 
 ### Task 1: View Live Website Logs
