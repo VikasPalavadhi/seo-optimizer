@@ -47,7 +47,7 @@ async function generateWithBackend(
 ): Promise<GeminiResponse & { groundingSources: GroundingSource[] }> {
   // Use relative URL in production, localhost in development
   const apiUrl = window.location.hostname === 'localhost'
-    ? 'http://localhost:3001/api/generate'
+    ? 'http://localhost:3007/api/generate'
     : '/api/generate';
 
   const response = await fetch(apiUrl, {

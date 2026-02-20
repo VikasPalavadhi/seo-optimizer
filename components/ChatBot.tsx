@@ -47,7 +47,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
     try {
       // Use relative URL in production, localhost in development
       const apiUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:3001/api/chat'
+        ? 'http://localhost:3007/api/chat'
         : '/api/chat';
 
       const response = await fetch(apiUrl, {
