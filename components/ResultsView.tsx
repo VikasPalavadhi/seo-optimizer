@@ -197,39 +197,155 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
         )}
 
         {activeTab === 'preview' && (
-          <div className="bg-white rounded-[3.5rem] p-12 md:p-16 border border-slate-100 shadow-2xl space-y-12 animate-in fade-in duration-500">
-             <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 border-b border-slate-50 gap-8">
+          <div className="space-y-12 animate-in fade-in duration-500">
+            {/* Page Type & Strategic Insights */}
+            <div className="bg-gradient-to-br from-white to-slate-50 rounded-[3.5rem] p-12 md:p-16 border border-slate-100 shadow-2xl space-y-10">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 border-b border-slate-200 gap-8">
                 <div>
-                   <h4 className="text-slate-900 font-black text-3xl tracking-tighter">Content Core Extraction</h4>
-                   <p className="text-[#414042] text-[11px] font-black uppercase tracking-[0.5em] mt-3 opacity-40">Cleaned Semantic Data</p>
+                  <h4 className="text-slate-900 font-black text-3xl tracking-tighter">Analysis Context & Insights</h4>
+                  <p className="text-[#414042] text-[11px] font-black uppercase tracking-[0.5em] mt-3 opacity-40">What was considered during generation</p>
                 </div>
-             </div>
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16">
-                <div className="lg:col-span-2 space-y-8">
-                   <label className="text-[11px] font-black uppercase tracking-[0.5em]" style={{ color: activeProfile.primaryColor }}>Main Body Text</label>
-                   <div className="p-8 md:p-12 bg-[#fbfbfd] rounded-[2.5rem] border border-slate-100 max-h-[600px] overflow-y-auto no-scrollbar shadow-inner">
-                      <p className="text-[#414042] text-lg leading-[1.8] font-medium whitespace-pre-wrap">
-                         {generation.extracted.mainTextPreview}
+                <div className="flex items-center gap-4">
+                  <span className="px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider text-white shadow-lg" style={{ backgroundColor: activeProfile.primaryColor }}>
+                    {generation.pageType}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                {/* Strategic Rationale */}
+                {generation.strategicImpact && (
+                  <div className="space-y-6">
+                    <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40 flex items-center gap-3">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/></svg>
+                      Strategic Growth Rationale
+                    </label>
+                    <div className="p-8 bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm">
+                      <p className="text-[#414042] text-base leading-relaxed font-medium">
+                        {generation.strategicImpact.growthRationale}
                       </p>
-                   </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Recommendation Reasoning */}
+                {generation.aiRecommendation && (
+                  <div className="space-y-6">
+                    <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40 flex items-center gap-3">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/></svg>
+                      Recommendation Rationale
+                    </label>
+                    <div className="p-8 bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm">
+                      <p className="text-[#414042] text-base leading-relaxed font-medium">
+                        {generation.aiRecommendation.expertRationale}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Performance Scores */}
+              {generation.strategicImpact && (
+                <div className="pt-10 border-t border-slate-200 space-y-6">
+                  <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40">Strategic Impact Scores</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-[#414042] uppercase tracking-wider opacity-60">Visibility</span>
+                        <span className="text-2xl font-black" style={{ color: activeProfile.primaryColor }}>{generation.strategicImpact.visibilityScore}</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${generation.strategicImpact.visibilityScore}%`, backgroundColor: activeProfile.primaryColor }} />
+                      </div>
+                    </div>
+                    <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-[#414042] uppercase tracking-wider opacity-60">Trust</span>
+                        <span className="text-2xl font-black" style={{ color: activeProfile.accentColor }}>{generation.strategicImpact.trustScore}</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${generation.strategicImpact.trustScore}%`, backgroundColor: activeProfile.accentColor }} />
+                      </div>
+                    </div>
+                    <div className="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-[#414042] uppercase tracking-wider opacity-60">Compliance</span>
+                        <span className="text-2xl font-black text-indigo-600">{generation.strategicImpact.complianceScore}</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-600 rounded-full transition-all" style={{ width: `${generation.strategicImpact.complianceScore}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Extracted Keywords */}
+              <div className="pt-10 border-t border-slate-200 space-y-6">
+                <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40 flex items-center gap-3">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"/></svg>
+                  Key Terms Identified Across All Variants
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {Array.from(new Set(generation.seoVariants.flatMap(v => v.keyphrases))).slice(0, 15).map((kp, i) => (
+                    <span key={i} className="px-5 py-3 bg-white border-2 border-slate-100 rounded-xl text-xs font-black text-[#414042] uppercase tracking-tight shadow-sm hover:border-indigo-200 hover:shadow-md transition-all">
+                      {kp}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Schema Commentary */}
+              {generation.schemaCommentary && (
+                <div className="pt-10 border-t border-slate-200 space-y-6">
+                  <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40 flex items-center gap-3">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/></svg>
+                    Schema Generation Notes
+                  </label>
+                  <div className="p-8 bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm">
+                    <p className="text-[#414042] text-base leading-relaxed font-medium">
+                      {generation.schemaCommentary}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Extracted Content */}
+            <div className="bg-white rounded-[3.5rem] p-12 md:p-16 border border-slate-100 shadow-2xl space-y-12">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 border-b border-slate-50 gap-8">
+                <div>
+                  <h4 className="text-slate-900 font-black text-3xl tracking-tighter">Content Core Extraction</h4>
+                  <p className="text-[#414042] text-[11px] font-black uppercase tracking-[0.5em] mt-3 opacity-40">Cleaned Semantic Data</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16">
+                <div className="lg:col-span-2 space-y-8">
+                  <label className="text-[11px] font-black uppercase tracking-[0.5em]" style={{ color: activeProfile.primaryColor }}>Main Body Text</label>
+                  <div className="p-8 md:p-12 bg-[#fbfbfd] rounded-[2.5rem] border border-slate-100 max-h-[600px] overflow-y-auto no-scrollbar shadow-inner">
+                    <p className="text-[#414042] text-lg leading-[1.8] font-medium whitespace-pre-wrap">
+                      {generation.extracted.mainTextPreview}
+                    </p>
+                  </div>
                 </div>
                 <div className="space-y-10">
-                   <section className="space-y-4">
-                      <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.4em] block opacity-40">Current H1</label>
-                      <p className="p-6 bg-white rounded-2xl text-slate-900 font-black text-base border border-slate-200 shadow-sm">{generation.extracted.h1Current || 'No Structural H1'}</p>
-                   </section>
-                   <section className="space-y-4">
-                      <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.4em] block opacity-40">Extracted Subheadings</label>
-                      <div className="flex flex-col gap-2">
-                         {generation.extracted.headings.slice(0, 8).map((h, i) => (
-                            <div key={i} className="px-5 py-3 bg-white border border-slate-50 rounded-xl text-xs text-[#414042] font-bold truncate shadow-sm">
-                               {h}
-                            </div>
-                         ))}
-                      </div>
-                   </section>
+                  <section className="space-y-4">
+                    <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.4em] block opacity-40">Current H1</label>
+                    <p className="p-6 bg-white rounded-2xl text-slate-900 font-black text-base border border-slate-200 shadow-sm">{generation.extracted.h1Current || 'No Structural H1'}</p>
+                  </section>
+                  <section className="space-y-4">
+                    <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.4em] block opacity-40">Extracted Subheadings</label>
+                    <div className="flex flex-col gap-2">
+                      {generation.extracted.headings.slice(0, 8).map((h, i) => (
+                        <div key={i} className="px-5 py-3 bg-white border border-slate-50 rounded-xl text-xs text-[#414042] font-bold truncate shadow-sm">
+                          {h}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         )}
 
