@@ -403,31 +403,44 @@ app.post('/api/chat', async (req, res) => {
     // Build system context with SEO generation data
     let systemContext = `You are an expert SEO Assistant helping users understand and optimize their SEO strategies. You provide clear, actionable advice about SEO variants, schema markup, and content optimization.
 
-When users ask you to create, modify, or enhance SEO variants or schema, you should:
-1. Provide a clear explanation of the changes
-2. Generate the complete new variant or schema in a structured format
+CRITICAL: When users ask you to create, modify, or enhance SEO variants or schema, you MUST:
+1. Provide a clear explanation of what you're changing and why
+2. Generate the complete new variant or schema wrapped in the EXACT markers shown below
+3. ALWAYS include the markers - they are required for the system to detect your output
 
-For NEW SEO VARIANTS, always structure them as:
+For NEW SEO VARIANTS, you MUST use this EXACT format (include the markers):
 ---NEW_VARIANT---
 {
-  "h1": "...",
-  "metaTitle": "...",
-  "metaDescription": "...",
-  "keyphrases": ["..."],
-  "rationale": "...",
-  "bestFor": "...",
-  "justification": "...",
-  "situationalComparison": "..."
+  "h1": "Your improved H1 here",
+  "metaTitle": "Your improved meta title here",
+  "metaDescription": "Your improved meta description here",
+  "keyphrases": ["keyword1", "keyword2", "keyword3"],
+  "rationale": "Why this variant works",
+  "bestFor": "Target audience/use case",
+  "justification": "Technical justification",
+  "situationalComparison": "How it compares to others"
 }
 ---END_VARIANT---
 
-For SCHEMA MODIFICATIONS, structure them as:
+For SCHEMA MODIFICATIONS or ENHANCEMENTS, you MUST use this EXACT format (include the markers):
 ---NEW_SCHEMA---
 {
   "@context": "https://schema.org",
-  "@graph": [...]
+  "@graph": [
+    {
+      "@type": "Organization",
+      "...": "..."
+    }
+  ]
 }
----END_SCHEMA---`;
+---END_SCHEMA---
+
+IMPORTANT RULES:
+- ALWAYS wrap JSON output in the markers (---NEW_VARIANT--- or ---NEW_SCHEMA---)
+- Do NOT use markdown code blocks (no \`\`\`json)
+- The markers MUST be on their own lines
+- Without the markers, the user won't see the "Add to Dashboard" button
+- If user asks for schema enhancement, ALWAYS include ---NEW_SCHEMA--- markers`;
 
     if (context) {
       systemContext += `\n\nCurrent SEO Generation Context:\n`;
@@ -485,6 +498,7 @@ For SCHEMA MODIFICATIONS, structure them as:
     let newVariant = null;
     let newSchema = null;
 
+    // Try to extract with markers first (preferred method)
     if (assistantMessage.includes('---NEW_VARIANT---')) {
       const variantMatch = assistantMessage.match(/---NEW_VARIANT---([\s\S]*?)---END_VARIANT---/);
       if (variantMatch) {
@@ -503,6 +517,42 @@ For SCHEMA MODIFICATIONS, structure them as:
           newSchema = JSON.parse(schemaMatch[1].trim());
         } catch (e) {
           console.warn('Failed to parse new schema', e);
+        }
+      }
+    }
+
+    // Fallback: Try to detect JSON blocks if markers weren't used
+    if (!newSchema && !newVariant) {
+      // Look for JSON code blocks with ```json
+      const jsonBlockMatch = assistantMessage.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonBlockMatch) {
+        try {
+          const parsed = JSON.parse(jsonBlockMatch[1].trim());
+          // Check if it's a schema (has @context or @graph)
+          if (parsed['@context'] || parsed['@graph']) {
+            newSchema = parsed;
+            console.log('Extracted schema from markdown code block');
+          }
+          // Check if it's a variant (has metaTitle and metaDescription)
+          else if (parsed.metaTitle && parsed.metaDescription) {
+            newVariant = parsed;
+            console.log('Extracted variant from markdown code block');
+          }
+        } catch (e) {
+          console.warn('Failed to parse JSON code block', e);
+        }
+      }
+
+      // Also try plain JSON objects wrapped in curly braces
+      if (!newSchema && !newVariant) {
+        const jsonMatch = assistantMessage.match(/\{[\s\S]*"@context"[\s\S]*"@graph"[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            newSchema = JSON.parse(jsonMatch[0]);
+            console.log('Extracted schema from plain JSON');
+          } catch (e) {
+            console.warn('Failed to parse plain JSON schema', e);
+          }
         }
       }
     }
