@@ -8,13 +8,20 @@ Enterprise SEO optimization tool powered by AI (Google Gemini & OpenAI GPT-4). G
 
 ## Features
 
-- **Dual AI Model Support**: Choose between Google Gemini 2.0 Flash or OpenAI GPT-4o
+- **Dual AI Model Support**: Choose between Google Gemini 2.5 Flash/Pro or OpenAI GPT-4o
 - **3 SEO Variant Generation**: Get multiple optimized SEO strategies for any page
-- **Schema.org JSON-LD**: Automatic structured data generation
-- **Strategic Impact Scoring**: Visibility, Trust, and Compliance scores
+- **🏦 Banking Schema Specification**: World-class schema for ENBD & Emirates Islamic
+  - Automatic channel detection (ENBD vs Emirates Islamic)
+  - Page type classification (ProductPage, CampaignPage, etc.)
+  - Islamic finance terminology mapping (Murabaha, Ijara, etc.)
+  - Comprehensive @graph structure with Organization, WebSite, WebPage, BreadcrumbList, FAQPage, HowTo nodes
+  - AlternateName optimization for both conventional and Islamic finance terms
+- **Schema.org JSON-LD**: Automatic structured data generation following banking best practices
+- **Strategic Impact Scoring**: Visibility, Trust, and Compliance scores (0-100)
 - **Interactive Chat Assistant**: Refine variants and schema with AI assistance
 - **Brand Profile Management**: Support for multiple brand identities
 - **History Tracking**: Save and review past generations
+- **Mobile Responsive**: Optimized for all devices (mobile, tablet, desktop)
 
 ## Tech Stack
 

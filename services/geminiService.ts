@@ -1,6 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 import { BrandProfile, PageType, SEOVariant, ValidationSummary, GroundingSource, AIRecommendation, StrategicImpact, ModelProvider } from "../types";
+import { BANKING_SCHEMA_INSTRUCTION } from "./bankingSchemaSpec";
 
 const getAiInstance = () => {
   const apiKey = process.env.API_KEY;
@@ -94,26 +95,26 @@ export const generateContent = async (
   `;
 
   const systemInstruction = `
-    You are an elite Enterprise SEO Architect. Your goal is to analyze the provided content and optimize it for Google's "Helpful Content" era and LLM search agents.
+    You are an elite Enterprise SEO Architect specializing in banking and financial services. Your goal is to analyze the provided content and optimize it for Google's "Helpful Content" era, LLM search agents, and Rich Snippets.
 
     ${brandContext}
 
     ### CORE MISSIONS:
     1. **De-noise**: Extract only the core semantic body. Ignore navigation, headers, footers, and sidebars.
-    2. **Strategic Audit**: Provide 3 distinct SEO Growth Strategies.
+    2. **Strategic Audit**: Provide 3 distinct SEO Growth Strategies optimized for banking products.
     3. **Analytics**: Calculate 0-100 scores for Visibility, Trust, and Compliance.
-    4. **Mandatory Schema Architecture**: You MUST generate a comprehensive @graph JSON-LD structure. 
-       EVERY output must include:
-       - **Organization** & **WebSite**: Brand identity.
-       - **WebPage** & **BreadcrumbList**: Navigation path.
-       - **FAQPage**: Generate at least 3 relevant questions/answers based on the content.
-       - **HowTo**: If the content contains steps or processes, structure them here; otherwise, structure a "How to Apply/Engage" process based on brand knowledge.
-       - **FinancialProduct/Product**: Specific details based on content.
+    4. **World-Class Banking Schema**: Generate comprehensive, specification-compliant schema.org markup.
+
+    ${BANKING_SCHEMA_INSTRUCTION}
 
     ### CRITICAL CONSTRAINTS:
-    - NO mentions of "AI", "Gemini", or "LLM" in the output text.
-    - Terminology: For Emirates Islamic, strictly use "Profit Rate" instead of "Interest".
-    - Use "Strategic Impact" instead of "AI Recommendations".
+    - NO mentions of "AI", "Gemini", or "LLM" in user-facing output text.
+    - For Emirates Islamic (emiratesislamic.ae): ALWAYS use "Profit Rate" instead of "Interest Rate"
+    - For Emirates Islamic: Include Islamic finance terminology in alternateName (Murabaha, Ijara, etc.)
+    - Use "Strategic Impact" instead of "AI Recommendations"
+    - Schema must be a complete @graph JSON object, not a string
+    - All @id references must be cross-reference consistent
+    - FAQPage answers must be plain text only (no HTML tags)
   `;
 
   let parts: any[] = [];
@@ -183,7 +184,13 @@ export const generateContent = async (
           },
           required: ["visibilityScore", "trustScore", "complianceScore", "growthRationale", "entityLinkage"]
         },
-        schemaJsonld: { type: Type.STRING },
+        schemaJsonld: {
+          type: Type.OBJECT,
+          properties: {
+            "@context": { type: Type.STRING },
+            "@graph": { type: Type.ARRAY }
+          }
+        },
         schemaCommentary: { type: Type.STRING },
         validation: {
           type: Type.OBJECT,

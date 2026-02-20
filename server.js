@@ -9,6 +9,141 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Banking Schema Specification for ENBD & Emirates Islamic
+const BANKING_SCHEMA_INSTRUCTION = `
+## BANKING SCHEMA ARCHITECTURE (ENBD & Emirates Islamic)
+
+You MUST generate schema following this exact specification:
+
+### 1. CHANNEL DETECTION
+- **ENBD**: emiratesnbd.com
+- **Emirates Islamic (EI)**: emiratesislamic.ae
+
+### 2. MANDATORY NODES (All Pages)
+Always include these 4 base nodes:
+- Organization (from channel preset)
+- WebSite (from channel preset)
+- WebPage (populated from content)
+- BreadcrumbList (from URL structure)
+
+### 3. PAGE TYPE & CONDITIONAL NODES
+
+**ProductPage** (if content mentions: credit card, account, loan, finance, mortgage, deposit):
+- FinancialProduct + Product (dual type: ["FinancialProduct", "Product"])
+- FAQPage (if Q&A content exists)
+- HowTo – Apply (always for products)
+- HowTo – Usage/Rewards (only if rewards/miles/cashback mentioned)
+- ItemList (only if related products mentioned)
+- SpecialAnnouncement (only if active offer/promotion)
+
+**CampaignPage** (if content mentions: offer, limited time, promotion):
+- SpecialAnnouncement
+- FAQPage (if Q&A exists)
+- HowTo – Apply/Participate
+
+**PressRelease** (if content mentions: announces, launched, partnership, award):
+- NewsArticle
+
+**BlogArticle** (if content mentions: guide, tips, how to, explained):
+- Article
+- FAQPage (if Q&A exists)
+- HowTo (if instructional)
+
+### 4. ISLAMIC FINANCE TERMINOLOGY (EI Channel Only)
+For Emirates Islamic pages, you MUST:
+- Use "Profit Rate" instead of "Interest Rate"
+- Add Islamic finance aliases to alternateName:
+  * Credit Card → add "Islamic credit card UAE", "Sharia compliant credit card", "Murabaha credit card", "halal credit card UAE"
+  * Home Finance → add "Ijara home finance", "Murabaha mortgage", "Islamic mortgage UAE"
+  * Personal Finance → add "Murabaha personal finance", "Islamic personal loan"
+  * Savings → add "Mudaraba savings account", "Islamic savings UAE"
+  * Business Finance → add "Musharaka business finance", "Islamic SME loan"
+
+### 5. @ID ANCHOR PATTERNS
+Use these exact patterns:
+- Organization: https://www.emiratesnbd.com/#organization (with trailing slash before #)
+- WebSite: https://www.emiratesnbd.com/#website (with trailing slash before #)
+- WebPage: [PAGE_URL]#webpage (NO trailing slash before #)
+- FinancialProduct: [PAGE_URL]#card
+- FAQPage: [PAGE_URL]#faq
+- HowTo Apply: [PAGE_URL]#howto-apply
+- HowTo Usage: [PAGE_URL]#howto-usage
+- BreadcrumbList: [PAGE_URL]#breadcrumb
+- SpecialAnnouncement: [PAGE_URL]#offer-announcement
+
+### 6. CRITICAL RULES
+- NO AggregateRating, Review, or VideoObject for banking products
+- NO HTML in FAQPage acceptedAnswer.text (plain text only)
+- Every node MUST have an @id
+- All @id cross-references must be consistent
+- AlternateName MUST include both generic and Islamic finance terms (for EI)
+- FinancialProduct MUST use dual type: ["FinancialProduct", "Product"]
+
+### 7. BREADCRUMB LOGIC
+Infer from URL path segments. Example:
+URL: /en/personal-banking/cards/credit-cards/skywards-infinite
+Breadcrumb: Home > Personal Banking > Cards > Credit Cards > Skywards Infinite
+
+Generate BreadcrumbList with proper position and item structure.
+
+### 8. FAQ GENERATION
+If content has Q&A section, extract it.
+If not, generate minimum 3 relevant FAQs like:
+- "What is the [Product Name]?"
+- "What are the fees for [Product Name]?"
+- "How do I apply for [Product Name]?"
+- "Is [Product Name] Sharia compliant?" (for EI only)
+
+Plain text answers only - no HTML tags allowed.
+
+### 9. HOWTO STRUCTURE
+**HowTo – Apply** (always for products):
+Step 1: Check Eligibility
+Step 2: Prepare Documents (Emirates ID, passport, bank statements, salary certificate)
+Step 3: Submit Online Application
+Step 4: Upload Documents
+Step 5: Await Approval (3-5 business days)
+Step 6: Activate Card/Account
+
+**HowTo – Usage/Rewards** (only if rewards/miles exist):
+Step 1: Spend on Your Card (mention earn rate)
+Step 2: Track Your Miles/Points
+Step 3: Redeem for Flights/Rewards
+Step 4: Claim Welcome Bonus (if applicable)
+
+### 10. ORGANIZATION PRESETS
+
+**ENBD Organization**:
+{
+  "@type": "Organization",
+  "@id": "https://www.emiratesnbd.com/#organization",
+  "name": "Emirates NBD",
+  "alternateName": ["ENBD", "Emirates NBD Bank", "Emirates National Bank of Dubai", "Emirates NBD PJSC"],
+  "url": "https://www.emiratesnbd.com",
+  "logo": {"@type": "ImageObject", "url": "https://www.emiratesnbd.com/assets/en/images/logo.svg", "width": 200, "height": 60},
+  "description": "Emirates NBD is one of the leading banking groups in the Middle East and North Africa, headquartered in Dubai, UAE.",
+  "foundingDate": "2007",
+  "areaServed": {"@type": "Country", "name": "United Arab Emirates"},
+  "sameAs": ["https://en.wikipedia.org/wiki/Emirates_NBD", "https://www.linkedin.com/company/emirates-nbd", "https://twitter.com/emiratesnbd"]
+}
+
+**Emirates Islamic Organization**:
+{
+  "@type": "Organization",
+  "@id": "https://www.emiratesislamic.ae/#organization",
+  "name": "Emirates Islamic",
+  "alternateName": ["EI", "Emirates Islamic Bank", "Emirates Islamic PJSC", "Emirates Islamic – Sharia Compliant Banking"],
+  "url": "https://www.emiratesislamic.ae",
+  "logo": {"@type": "ImageObject", "url": "https://www.emiratesislamic.ae/-/media/ei/images/header/emirates-islamic-logo.svg", "width": 200, "height": 60},
+  "description": "Emirates Islamic is a leading Islamic bank in the UAE, offering Sharia-compliant retail and corporate banking products.",
+  "foundingDate": "2004",
+  "areaServed": {"@type": "Country", "name": "United Arab Emirates"},
+  "sameAs": ["https://en.wikipedia.org/wiki/Emirates_Islamic_Bank", "https://www.linkedin.com/company/emirates-islamic", "https://twitter.com/emiratesislamic"]
+}
+
+Return the schema as a complete @graph JSON object with all required nodes.
+`;
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -70,28 +205,30 @@ app.post('/api/generate', async (req, res) => {
       `;
 
       const systemPrompt = `
-        You are an elite Enterprise SEO Architect. Your goal is to analyze the provided content and optimize it for Google's "Helpful Content" era and LLM search agents.
+        You are an elite Enterprise SEO Architect specializing in banking and financial services. Your goal is to analyze the provided content and optimize it for Google's "Helpful Content" era, LLM search agents, and Rich Snippets.
 
         ${brandContext}
 
         ### CORE MISSIONS:
         1. **De-noise**: Extract only the core semantic body. Ignore navigation, headers, footers, and sidebars.
-        2. **Strategic Audit**: Provide EXACTLY 3 distinct SEO Growth Strategies (variants).
+        2. **Strategic Audit**: Provide EXACTLY 3 distinct SEO Growth Strategies (variants) optimized for banking products.
         3. **Analytics**: Calculate 0-100 scores for Visibility, Trust, and Compliance.
-        4. **Mandatory Schema Architecture**: You MUST generate a comprehensive @graph JSON-LD structure.
-           EVERY output must include:
-           - **Organization** & **WebSite**: Brand identity.
-           - **WebPage** & **BreadcrumbList**: Navigation path.
-           - **FAQPage**: Generate at least 3 relevant questions/answers based on the content.
-           - **HowTo**: If the content contains steps or processes, structure them here; otherwise, structure a "How to Apply/Engage" process based on brand knowledge.
-           - **FinancialProduct/Product**: Specific details based on content.
+        4. **World-Class Banking Schema**: Generate comprehensive, specification-compliant schema.org markup.
+
+        ${BANKING_SCHEMA_INSTRUCTION}
 
         ### CRITICAL CONSTRAINTS:
-        - NO mentions of "AI", "Gemini", or "LLM" in the output text.
-        - Terminology: For Emirates Islamic, strictly use "Profit Rate" instead of "Interest".
-        - Use "Strategic Impact" instead of "AI Recommendations".
+        - NO mentions of "AI", "Gemini", or "LLM" in user-facing output text.
+        - For Emirates Islamic (emiratesislamic.ae): ALWAYS use "Profit Rate" instead of "Interest Rate"
+        - For Emirates Islamic: Include Islamic finance terminology in alternateName (Murabaha, Ijara, etc.)
+        - Use "Strategic Impact" instead of "AI Recommendations"
+        - Schema must be a complete @graph JSON object, not a string
+        - All @id references must be cross-reference consistent
+        - FAQPage answers must be plain text only (no HTML tags)
 
-        Return a valid JSON object with the following structure (IMPORTANT: seoVariants array must contain EXACTLY 3 objects):
+        Return a valid JSON object with the following structure:
+        - IMPORTANT: seoVariants array must contain EXACTLY 3 objects
+        - IMPORTANT: schemaJsonld must be a complete JSON object (not a string) with @context and @graph array
         {
           "pageType": "product|campaign|offer|press_release|generic",
           "extraction": {
@@ -145,7 +282,16 @@ app.post('/api/generate', async (req, res) => {
             "growthRationale": "string",
             "entityLinkage": ["string"]
           },
-          "schemaJsonld": "JSON-LD string",
+          "schemaJsonld": {
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                "@id": "...",
+                "..."
+              }
+            ]
+          },
           "schemaCommentary": "string",
           "validation": {
             "errors": ["string"],
