@@ -44,6 +44,7 @@ export interface SEOVariant {
   bestFor: string;
   justification: string;
   situationalComparison: string;
+  url?: string; // Target URL for this variant
   isEnhanced?: boolean; // Added via chat assistant
 }
 
@@ -87,4 +88,4 @@ export interface Generation {
   groundingSources?: GroundingSource[];
 }
 
-export type ViewState = 'login' | 'dashboard' | 'results' | 'history';
+export type ViewState = 'login' | 'module-select' | 'simple-seo' | 'full-seo' | 'results' | 'history';

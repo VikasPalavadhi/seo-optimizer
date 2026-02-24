@@ -227,11 +227,20 @@ app.post('/api/generate', async (req, res) => {
 
         ### CORE MISSIONS:
         1. **De-noise**: Extract only the core semantic body. Ignore navigation, headers, footers, and sidebars.
-        2. **Strategic Audit**: Provide EXACTLY 3 distinct SEO Growth Strategies (variants) optimized for banking products.
+        2. **Strategic Audit**: Provide EXACTLY 3 distinct SEO Growth Strategies (variants) optimized for banking products. For each variant, suggest an appropriate target URL path.
         3. **Analytics**: Calculate 0-100 scores for Visibility, Trust, and Compliance.
         4. **World-Class Banking Schema**: Generate comprehensive, specification-compliant schema.org markup.
 
         ${BANKING_SCHEMA_INSTRUCTION}
+
+        ### URL GENERATION FOR VARIANTS:
+        For each SEO variant, you MUST provide a suggested URL path that:
+        - Is in lowercase with hyphens (kebab-case)
+        - Reflects the main focus/theme of that specific variant
+        - Includes the primary keyword when possible
+        - Follows standard banking URL patterns (e.g., /personal-banking/cards/credit-cards/card-name)
+        - Is unique for each variant
+        - Keeps it concise (3-5 segments maximum)
 
         ### EXTRACTION REQUIREMENTS:
         For the "mainTextPreview" field, you MUST extract a COMPREHENSIVE summary including:
@@ -582,6 +591,184 @@ IMPORTANT RULES:
     const status = error.status || 500;
     res.status(status).json({
       error: error.message || 'Chat service error',
+      code: status
+    });
+  }
+});
+
+// 7. Simple SEO Generation - Variants Only (No Schema)
+app.post('/api/generate-simple', async (req, res) => {
+  try {
+    const { content, contentType, profile, modelProvider } = req.body;
+
+    if (!content || !profile) {
+      return res.status(400).json({ error: 'Invalid request: content and profile required' });
+    }
+
+    const provider = modelProvider || 'openai';
+    const ai = provider === 'gemini' ? getGeminiInstance() : null;
+    const openai = provider === 'openai' ? getOpenAIInstance() : null;
+
+    const brandContext = `
+      BRAND CONTEXT: ${profile.legalName} (${profile.name})
+      - Website: https://${profile.domain}/
+      - Logo: ${profile.logoUrl}
+      - Org Type: ${profile.orgType}
+    `;
+
+    const contentTypeLabels = {
+      campaign: 'Marketing Campaign',
+      page: 'Web Page',
+      terms: 'Terms & Conditions',
+      press: 'Press Release',
+      offer: 'Offer/Deal',
+      other: 'General Content'
+    };
+
+    const systemPrompt = `
+      You are an expert SEO specialist. Analyze the provided ${contentTypeLabels[contentType] || 'content'} and generate 3 distinct SEO-optimized variants.
+
+      ${brandContext}
+
+      ### YOUR TASK:
+      1. Analyze the content to understand its purpose, key messages, and target audience
+      2. Extract the core value propositions and unique selling points
+      3. Generate EXACTLY 3 distinct SEO variants, each optimized for different search intents or user personas
+      4. For EACH variant, suggest an appropriate target URL slug based on the content focus
+
+      ### VARIANT REQUIREMENTS:
+      Each variant must have:
+      - **H1**: Compelling, keyword-rich headline (50-60 characters)
+      - **Meta Title**: SEO-optimized title tag (50-60 characters)
+      - **Meta Description**: Persuasive description (150-160 characters)
+      - **URL**: Suggested URL path/slug for this variant (e.g., "/personal-banking/platinum-card", "/offers/summer-promo-2025")
+      - **Keyphrases**: 5-7 target keywords/phrases relevant to this variant
+      - **Rationale**: Why this approach works for SEO
+      - **Best For**: Target audience or use case for this variant
+      - **Justification**: Technical SEO justification
+      - **Situational Comparison**: How this variant differs from the others
+
+      ### URL GUIDELINES (CRITICAL - URLs MUST BE SEO-PERFECT):
+      URLs are CRUCIAL for SEO and must match user search intent. Follow these rules strictly:
+
+      1. **Structure**: Use clear hierarchy based on content type
+         - Campaigns/Offers: /en/offers/{product-name-benefit}
+         - Product Pages: /en/{category}/{product-name}
+         - Applications: /en/apply/{product-name}
+         - Examples:
+           * /en/offers/skywards-black-75k-bonus-miles
+           * /en/offers/platinum-cashback-bonus
+           * /en/credit-cards/infinite-rewards
+           * /en/apply/sme-business-loan
+
+      2. **Include Benefit Terms**: MUST include the actual benefit in the URL for campaigns/offers
+         - Use compound search terms like "bonus-miles", "bonus-points", "cashback-bonus"
+         - If brief mentions "75000 bonus miles", URL should include "75k-bonus-miles"
+         - If brief mentions "cashback", URL should include "cashback" or "cashback-bonus"
+         - If brief mentions "rewards", URL should include "rewards" or "bonus-rewards"
+         - Examples:
+           * Brief: "Get 50000 bonus points" → /en/offers/card-name-50k-bonus-points
+           * Brief: "5% cashback on all purchases" → /en/offers/card-name-5-cashback
+           * Brief: "Free lounge access" → /en/offers/card-name-lounge-access
+
+      3. **Use Numbers Wisely**: Abbreviate large numbers for brevity
+         - 75000 → 75k
+         - 100000 → 100k
+         - 5% → 5-percent (only if crucial to differentiate)
+
+      4. **Length**: Keep URLs concise but descriptive (4-5 segments ideal, max 50 characters)
+         - ✅ Good: /en/offers/skywards-black-75k-bonus-miles (45 chars)
+         - ✅ Good: /en/apply/platinum-credit-card (33 chars)
+         - ❌ Bad: /en/special-limited-time-offers/skywards-black-credit-card-with-bonus-miles (81 chars)
+
+      5. **Each Variant MUST Have Different URL**: Reflect unique focus/angle
+         - Variant 1 (bonus miles focus): /en/offers/skywards-black-75k-bonus-miles
+         - Variant 2 (travel benefits focus): /en/offers/skywards-black-travel-benefits
+         - Variant 3 (application focus): /en/apply/skywards-black-credit-card
+
+      6. **Brand-Specific Patterns**:
+         - Emirates NBD: /en/{category}/{product-benefit}
+         - Emirates Islamic: /en/{category}/{product-benefit}
+         - Always start with /en/ for these brands
+
+      7. **Search Intent Matching**: URL MUST match what users actually search for
+         - Users search: "skywards black 75000 bonus miles"
+         - URL should be: /en/offers/skywards-black-75k-bonus-miles
+         - NOT: /en/offers/skywards-black-bonus (missing "miles")
+         - NOT: /en/credit-cards/skywards-black (missing benefit)
+
+      ### CRITICAL RULES:
+      - Generate EXACTLY 3 variants (no more, no less)
+      - Each variant should target a different angle/persona
+      - For Emirates Islamic content: Use "Profit Rate" instead of "Interest Rate"
+      - For Emirates Islamic content: Include Islamic finance terminology in keyphrases when relevant
+      - URLs must be unique for each variant
+      - NO schema generation needed
+      - NO strategic impact scores needed
+
+      Return a valid JSON object with this structure:
+      {
+        "seoVariants": [
+          {
+            "h1": "string",
+            "metaTitle": "string",
+            "metaDescription": "string",
+            "url": "string (full URL path starting with /)",
+            "keyphrases": ["string"],
+            "rationale": "string",
+            "bestFor": "string",
+            "justification": "string",
+            "situationalComparison": "string"
+          }
+        ],
+        "aiRecommendation": {
+          "winnerIndex": 0,
+          "expertRationale": "string (explain why this variant is recommended)",
+          "comparisonNotes": "string (how variants compare to each other)"
+        }
+      }
+    `;
+
+    const userPrompt = `Content Type: ${contentTypeLabels[contentType] || 'General'}
+
+Content to Analyze:
+${content}
+
+Generate 3 SEO-optimized variants with unique URLs for this content.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3
+    });
+
+    const resultText = completion.choices[0].message.content;
+    const data = JSON.parse(resultText);
+
+    // Validate that we got exactly 3 variants
+    if (!data.seoVariants || data.seoVariants.length !== 3) {
+      throw new Error('AI did not generate exactly 3 variants');
+    }
+
+    // Ensure all variants have URLs
+    data.seoVariants.forEach((variant, idx) => {
+      if (!variant.url) {
+        // Generate fallback URL if missing
+        variant.url = `/content/variant-${idx + 1}`;
+      }
+    });
+
+    res.json(data);
+
+  } catch (error) {
+    console.error('Simple SEO Generation Error:', error);
+    const status = error.status || 500;
+    res.status(status).json({
+      error: error.message || 'Simple SEO generation failed',
       code: status
     });
   }

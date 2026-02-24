@@ -7,9 +7,10 @@ import { generateContent } from '../services/geminiService';
 interface GeneratorProps {
   profile: BrandProfile;
   onComplete: (gen: Generation) => void;
+  onBack?: () => void;
 }
 
-const Generator: React.FC<GeneratorProps> = ({ profile, onComplete }) => {
+const Generator: React.FC<GeneratorProps> = ({ profile, onComplete, onBack }) => {
   const [url, setUrl] = useState('');
   const [pastedHtml, setPastedHtml] = useState('');
   const [uploadedFile, setUploadedFile] = useState<{ name: string; data: string; mimeType: string } | null>(null);
@@ -140,9 +141,21 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete }) => {
     <div className="space-y-6 md:space-y-8 max-w-6xl mx-auto">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-3">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter">SEO Generator</h2>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 p-3 hover:bg-slate-100 rounded-xl transition-all text-[#414042] active:scale-90 mb-2"
+              title="Back to Module Selection"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="text-sm font-bold">Back</span>
+            </button>
+          )}
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter">Full SEO Suite</h2>
           <p className="text-[#414042] font-medium text-base md:text-xl leading-relaxed">
-            Optimizing for <span style={{ color: profile.primaryColor }} className="font-bold underline decoration-2 underline-offset-8">{profile.name}</span>.
+            Complete optimization for <span style={{ color: profile.primaryColor }} className="font-bold underline decoration-2 underline-offset-8">{profile.name}</span>
           </p>
         </div>
         {(url || pastedHtml || uploadedFile) && !isLoading && (

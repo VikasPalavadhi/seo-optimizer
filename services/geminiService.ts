@@ -106,11 +106,36 @@ export const generateContent = async (
 
     ### CORE MISSIONS:
     1. **De-noise**: Extract only the core semantic body. Ignore navigation, headers, footers, and sidebars.
-    2. **Strategic Audit**: Provide 3 distinct SEO Growth Strategies optimized for banking products.
+    2. **Strategic Audit**: Provide 3 distinct SEO Growth Strategies optimized for banking products. For each variant, suggest an appropriate target URL path.
     3. **Analytics**: Calculate 0-100 scores for Visibility, Trust, and Compliance.
     4. **World-Class Banking Schema**: Generate comprehensive, specification-compliant schema.org markup.
 
     ${BANKING_SCHEMA_INSTRUCTION}
+
+    ### URL GENERATION FOR VARIANTS (CRITICAL - URLs MUST BE SEO-PERFECT):
+    For each SEO variant, you MUST provide a suggested URL path following these strict rules:
+
+    1. **Structure**: Use clear hierarchy based on content type
+       - Campaigns/Offers: /en/offers/{product-name-benefit}
+       - Product Pages: /en/{category}/{product-name}
+       - Applications: /en/apply/{product-name}
+
+    2. **Include Benefit Terms**: MUST include the actual benefit in URL for campaigns/offers
+       - Use compound search terms: "bonus-miles", "bonus-points", "cashback-bonus"
+       - If content mentions "75000 bonus miles" → URL: /en/offers/card-name-75k-bonus-miles
+       - If content mentions "5% cashback" → URL: /en/offers/card-name-5-cashback
+
+    3. **Abbreviate Numbers**: 75000 → 75k, 100000 → 100k
+
+    4. **Length**: 4-5 segments ideal, max 50 characters total
+
+    5. **Each Variant Different**: Reflect unique focus/angle
+       - Variant 1 (bonus focus): /en/offers/product-75k-bonus-miles
+       - Variant 2 (benefits focus): /en/offers/product-travel-benefits
+       - Variant 3 (application focus): /en/apply/product-credit-card
+
+    6. **Search Intent**: URL MUST match what users actually search for
+       - Users search "card name 75000 bonus miles" → /en/offers/card-name-75k-bonus-miles
 
     ### EXTRACTION REQUIREMENTS:
     For the "mainTextPreview" field, you MUST extract a COMPREHENSIVE summary including:
@@ -174,13 +199,14 @@ export const generateContent = async (
               h1: { type: Type.STRING },
               metaTitle: { type: Type.STRING },
               metaDescription: { type: Type.STRING },
+              url: { type: Type.STRING },
               keyphrases: { type: Type.ARRAY, items: { type: Type.STRING } },
               rationale: { type: Type.STRING },
               bestFor: { type: Type.STRING },
               justification: { type: Type.STRING },
               situationalComparison: { type: Type.STRING }
             },
-            required: ["h1", "metaTitle", "metaDescription", "keyphrases", "bestFor", "situationalComparison"]
+            required: ["h1", "metaTitle", "metaDescription", "url", "keyphrases", "bestFor", "situationalComparison"]
           }
         },
         aiRecommendation: {

@@ -1,11 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { ViewState, Generation, BrandProfile, SEOVariant } from './types';
+import { ViewState, Generation, BrandProfile, SEOVariant, AIRecommendation } from './types';
 import { BRAND_PROFILES } from './constants';
 import Layout from './components/Layout';
 import Login from './components/Login';
+import ModuleSelector from './components/ModuleSelector';
 import Generator from './components/Generator';
+import SimpleSEOGenerator from './components/SimpleSEOGenerator';
 import ResultsView from './components/ResultsView';
+import SimpleResultsView from './components/SimpleResultsView';
 import HistoryList from './components/HistoryList';
 
 const App: React.FC = () => {
@@ -14,9 +17,36 @@ const App: React.FC = () => {
   const [activeProfile, setActiveProfile] = useState<BrandProfile>(BRAND_PROFILES[0]);
   const [history, setHistory] = useState<Generation[]>([]);
   const [currentGeneration, setCurrentGeneration] = useState<Generation | null>(null);
+  const [currentSimpleResult, setCurrentSimpleResult] = useState<{ variants: SEOVariant[], aiRec: AIRecommendation } | null>(null);
 
-  // Load history from local storage on mount
+  // Load user session and history from local storage on mount
   useEffect(() => {
+    // Restore user session
+    const savedUser = localStorage.getItem('seo_tool_user');
+    const savedView = localStorage.getItem('seo_tool_view');
+    const sessionTimestamp = localStorage.getItem('seo_tool_session_time');
+
+    if (savedUser && sessionTimestamp) {
+      const now = Date.now();
+      const sessionAge = now - parseInt(sessionTimestamp);
+      const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+      if (sessionAge < TEN_MINUTES) {
+        setUser(savedUser);
+        if (savedView) {
+          setView(savedView as ViewState);
+        } else {
+          setView('module-select');
+        }
+      } else {
+        // Session expired, clear it
+        localStorage.removeItem('seo_tool_user');
+        localStorage.removeItem('seo_tool_view');
+        localStorage.removeItem('seo_tool_session_time');
+      }
+    }
+
+    // Load history
     const saved = localStorage.getItem('seo_tool_history');
     if (saved) {
       try {
@@ -35,12 +65,37 @@ const App: React.FC = () => {
 
   const handleLogin = (username: string) => {
     setUser(username);
-    setView('dashboard');
+    setView('module-select');
+    // Save session to localStorage
+    localStorage.setItem('seo_tool_user', username);
+    localStorage.setItem('seo_tool_view', 'module-select');
+    localStorage.setItem('seo_tool_session_time', Date.now().toString());
+  };
+
+  const handleModuleSelect = (module: 'simple-seo' | 'full-seo') => {
+    setView(module);
+    localStorage.setItem('seo_tool_view', module);
+    localStorage.setItem('seo_tool_session_time', Date.now().toString()); // Refresh session
+  };
+
+  const handleSimpleSEOComplete = (variants: SEOVariant[], aiRec: AIRecommendation) => {
+    setCurrentSimpleResult({ variants, aiRec });
+    setView('results');
+  };
+
+  const handleBackToModules = () => {
+    setView('module-select');
+    setCurrentGeneration(null);
+    setCurrentSimpleResult(null);
   };
 
   const handleLogout = () => {
     setUser(null);
     setView('login');
+    // Clear session from localStorage
+    localStorage.removeItem('seo_tool_user');
+    localStorage.removeItem('seo_tool_view');
+    localStorage.removeItem('seo_tool_session_time');
   };
 
   const handleGenerationComplete = (gen: Generation) => {
@@ -107,19 +162,40 @@ const App: React.FC = () => {
       onAddEnhancedVariant={handleAddEnhancedVariant}
       onAddEnhancedSchema={handleAddEnhancedSchema}
     >
-      {view === 'dashboard' && (
-        <Generator 
-          profile={activeProfile} 
-          onComplete={handleGenerationComplete} 
+      {view === 'module-select' && (
+        <ModuleSelector
+          profile={activeProfile}
+          onSelectModule={handleModuleSelect}
+        />
+      )}
+      {view === 'simple-seo' && (
+        <SimpleSEOGenerator
+          profile={activeProfile}
+          onComplete={handleSimpleSEOComplete}
+          onBack={handleBackToModules}
+        />
+      )}
+      {view === 'full-seo' && (
+        <Generator
+          profile={activeProfile}
+          onComplete={handleGenerationComplete}
+          onBack={handleBackToModules}
         />
       )}
       {view === 'results' && currentGeneration && (
         <ResultsView generation={currentGeneration} />
       )}
+      {view === 'results' && currentSimpleResult && !currentGeneration && (
+        <SimpleResultsView
+          variants={currentSimpleResult.variants}
+          aiRecommendation={currentSimpleResult.aiRec}
+          profile={activeProfile}
+        />
+      )}
       {view === 'history' && (
-        <HistoryList 
-          history={history} 
-          onView={viewGeneration} 
+        <HistoryList
+          history={history}
+          onView={viewGeneration}
           onDelete={(id) => {
             const updated = history.filter(h => h.id !== id);
             setHistory(updated);
