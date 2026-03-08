@@ -186,8 +186,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
                           {isExpanded ? msg.content.split(/```json|```/)[0] : msg.content.split(/```json|```/)[0].substring(0, 200)}
                         </p>
                       )}
-                      {/* Schema code block - dynamic height when expanded */}
-                      <div className={`bg-slate-800 rounded-xl p-3 ${isExpanded ? '' : 'max-h-[150px] overflow-hidden'}`}>
+                      {/* Schema code block - scrollable when expanded */}
+                      <div className={`bg-slate-800 rounded-xl p-3 overflow-auto ${isExpanded ? 'max-h-[50vh]' : 'max-h-[150px]'}`}>
                         <pre className="text-xs text-green-400 whitespace-pre-wrap break-words font-mono">
                           {isExpanded ? msg.content : displayContent}
                         </pre>
