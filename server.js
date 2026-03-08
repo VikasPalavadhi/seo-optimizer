@@ -512,7 +512,7 @@ IMPORTANT RULES:
       model: 'gpt-4o-mini',
       messages: chatMessages,
       temperature: 0.7,
-      max_tokens: 1500
+      max_tokens: 8000  // Increased to allow full schema with multiple FAQs
     });
 
     const assistantMessage = completion.choices[0].message.content;
