@@ -162,21 +162,21 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
 
         {activeTab === 'schema' && (
           <div className="space-y-12 animate-in fade-in duration-500">
-            <div className="bg-slate-900 rounded-[3.5rem] p-12 md:p-16 relative shadow-3xl border border-slate-800 overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 opacity-60" style={{ backgroundColor: activeProfile.primaryColor }} />
+            <div className="bg-white rounded-[3.5rem] p-12 md:p-16 relative shadow-2xl border border-slate-200 overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2" style={{ backgroundColor: activeProfile.primaryColor }} />
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
                 <div>
-                  <h4 className="text-white font-black text-3xl tracking-tight">Structured Metadata (JSON-LD)</h4>
-                  <p className="text-white text-[11px] font-black uppercase tracking-[0.4em] mt-3 opacity-30">Search Engine Ready</p>
+                  <h4 className="text-slate-900 font-black text-3xl tracking-tight">Structured Metadata (JSON-LD)</h4>
+                  <p className="text-[#414042] text-[11px] font-black uppercase tracking-[0.4em] mt-3 opacity-40">Search Engine Ready</p>
                 </div>
-                <button onClick={() => copyToClipboard(JSON.stringify(generation.schemaJsonld, null, 2), 'JSON-LD')} className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-[1.25rem] text-[11px] font-black uppercase tracking-[0.3em] transition-all border border-white/5 shadow-2xl active:scale-95">{copySuccess === 'JSON-LD' ? '✓ Data Copied' : 'Copy Schema'}</button>
+                <button onClick={() => copyToClipboard(JSON.stringify(generation.schemaJsonld, null, 2), 'JSON-LD')} className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-[1.25rem] text-[11px] font-black uppercase tracking-[0.3em] transition-all shadow-xl active:scale-95">{copySuccess === 'JSON-LD' ? '✓ Data Copied' : 'Copy Schema'}</button>
               </div>
-              <div className="p-8 bg-black/40 rounded-[2rem] border border-slate-800 shadow-inner group relative">
-                <pre className="font-mono text-sm overflow-x-auto no-scrollbar max-h-[600px] overflow-y-auto selection:bg-indigo-500/40" style={{ color: activeProfile.accentColor }}><code>{JSON.stringify(generation.schemaJsonld, null, 2)}</code></pre>
+              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-200 shadow-inner group relative">
+                <pre className="font-mono text-sm overflow-x-auto no-scrollbar max-h-[600px] overflow-y-auto text-slate-800 selection:bg-indigo-200"><code>{JSON.stringify(generation.schemaJsonld, null, 2)}</code></pre>
               </div>
             </div>
 
-            <div className="bg-white rounded-[3.5rem] p-10 border border-slate-100 shadow-xl relative overflow-hidden">
+            <div className="bg-white rounded-[3.5rem] p-10 border border-slate-200 shadow-xl relative overflow-hidden">
                <h4 className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] opacity-40 mb-10">Entity Architecture Mapping</h4>
                <div className="flex items-center justify-center gap-8 flex-wrap py-6">
                   {generation.strategicImpact?.entityLinkage.map((entity, i) => (
