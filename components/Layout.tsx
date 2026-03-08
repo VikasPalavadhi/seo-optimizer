@@ -43,7 +43,7 @@ const Layout: React.FC<LayoutProps> = ({
               S
             </div>
             <h1 className="text-base md:text-xl font-black tracking-tight text-slate-900">
-              SEO <span className="bg-clip-text text-transparent bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-accent)]">Guru</span>
+              SEO <span className="bg-clip-text text-transparent bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-accent)]">Optimizer</span>
             </h1>
           </div>
         </div>

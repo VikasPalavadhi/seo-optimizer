@@ -39,7 +39,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Guru</span></h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Optimizer</span></h2>
           <p className="text-slate-500 mt-4 font-medium tracking-tight">Enterprise SEO intelligence powered by AI</p>
         </div>
 
