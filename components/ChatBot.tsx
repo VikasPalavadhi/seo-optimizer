@@ -12,6 +12,7 @@ interface Message {
   schemaAdded?: boolean;
   variantCopied?: boolean;
   schemaCopied?: boolean;
+  isExpanded?: boolean;
 }
 
 interface ChatBotProps {
@@ -161,14 +162,68 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
               </div>
             )}
 
-            {messages.map((msg, idx) => (
+            {messages.map((msg, idx) => {
+              const isLongContent = msg.content.length > 400;
+              const isJsonContent = msg.content.includes('"@context"') || msg.content.includes('"@type"') || msg.content.trim().startsWith('{');
+              const isExpanded = msg.isExpanded ?? false;
+              const displayContent = isLongContent && !isExpanded
+                ? msg.content.substring(0, 400) + '...'
+                : msg.content;
+
+              return (
               <div key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} gap-2`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                <div className={`rounded-2xl px-4 py-3 ${
                   msg.role === 'user'
-                    ? 'bg-[#63bfb5] text-[#461e57] font-medium'
-                    : 'bg-slate-100 text-slate-800'
+                    ? 'max-w-[80%] bg-[#63bfb5] text-[#461e57] font-medium'
+                    : 'max-w-[95%] bg-slate-100 text-slate-800'
                 }`}>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                  {/* Check if content contains JSON/schema for special formatting */}
+                  {msg.role === 'assistant' && isJsonContent ? (
+                    <div className="space-y-2">
+                      {/* Extract non-JSON text before the schema */}
+                      {msg.content.split(/```json|```/)[0] && (
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {isExpanded ? msg.content.split(/```json|```/)[0] : msg.content.split(/```json|```/)[0].substring(0, 200)}
+                        </p>
+                      )}
+                      {/* Schema code block */}
+                      <div className={`bg-slate-800 rounded-xl p-3 ${isExpanded ? 'max-h-[300px]' : 'max-h-[150px]'} overflow-auto`}>
+                        <pre className="text-xs text-green-400 whitespace-pre-wrap break-all font-mono">
+                          {isExpanded ? msg.content : displayContent}
+                        </pre>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
+                  )}
+
+                  {/* Show expand/collapse button for long content */}
+                  {isLongContent && msg.role === 'assistant' && (
+                    <button
+                      onClick={() => {
+                        setMessages(prev => prev.map((m, i) =>
+                          i === idx ? { ...m, isExpanded: !isExpanded } : m
+                        ));
+                      }}
+                      className="mt-2 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
+                    >
+                      {isExpanded ? (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                          </svg>
+                          Show less
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                          Show full content ({msg.content.length} characters)
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Show action buttons for variants or schemas */}
@@ -287,7 +342,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
                   </div>
                 )}
               </div>
-            ))}
+            );
+            })}
 
             {isLoading && (
               <div className="flex justify-start">
