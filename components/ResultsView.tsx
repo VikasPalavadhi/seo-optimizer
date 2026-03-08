@@ -43,10 +43,22 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
             </div>
             <div className="p-20 md:p-32 bg-white">
               <div className="max-w-[600px] w-full font-sans">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-black text-white border shadow-md uppercase" style={{ backgroundColor: activeProfile.primaryColor }}>{generation.url.charAt(0)}</div>
-                  <div className="flex flex-col"><span className="text-[16px] text-[#202124] font-medium leading-none">{generation.url.split('/')[2] || 'source'}</span><span className="text-[14px] text-[#4d5156] mt-1">https://{generation.url.split('/')[2]} › ...</span></div>
-                </div>
+                {(() => {
+                  // Extract domain from URL properly
+                  const urlStr = generation.url || '';
+                  const domain = urlStr.replace(/^https?:\/\//, '').split('/')[0] || activeProfile.domain;
+                  return (
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-black text-white border shadow-md uppercase" style={{ backgroundColor: activeProfile.primaryColor }}>
+                        {activeProfile.name.charAt(0)}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[16px] text-[#202124] font-medium leading-none">{domain}</span>
+                        <span className="text-[14px] text-[#4d5156] mt-1">https://{domain} › ...</span>
+                      </div>
+                    </div>
+                  );
+                })()}
                 <h3 className="text-[24px] text-[#1a0dab] hover:underline cursor-pointer leading-[1.3] mb-2 font-normal">{previewVariant.metaTitle}</h3>
                 <p className="text-[16px] text-[#4d5156] leading-[1.58] line-clamp-3">{previewVariant.metaDescription}</p>
               </div>
