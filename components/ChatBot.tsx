@@ -121,9 +121,9 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
         </button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - Dynamic height based on content */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-full sm:w-96 h-[500px] sm:h-[600px] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-6 right-6 w-[calc(100%-3rem)] sm:w-[420px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-slate-100" style={{ backgroundColor: '#63bfb5' }}>
             <div className="flex items-center gap-3">
@@ -148,8 +148,8 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
             </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {/* Messages - Scrollable with dynamic content */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-[200px] max-h-[60vh]">
             {messages.length === 0 && (
               <div className="text-center py-12">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -175,7 +175,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ currentGeneration, onAddVariant, onAd
                 <div className={`rounded-2xl px-4 py-3 ${
                   msg.role === 'user'
                     ? 'max-w-[80%] bg-[#63bfb5] text-[#461e57] font-medium'
-                    : 'max-w-[95%] bg-slate-100 text-slate-800'
+                    : 'w-full bg-slate-100 text-slate-800'
                 }`}>
                   {/* Check if content contains JSON/schema for special formatting */}
                   {msg.role === 'assistant' && isJsonContent ? (
