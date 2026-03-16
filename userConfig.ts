@@ -14,13 +14,13 @@ export const USERS_CONFIG: UserConfig[] = [
     username: 'hakan',
     password: 'WPBmartech@i2025',
     entities: ['ei', 'enbd'],
-    isAdmin: true
+    isAdmin: false
   },
   {
     username: 'vikas',
     password: 'WPBmartech@i2025',
     entities: ['ei', 'enbd'],
-    isAdmin: true
+    isAdmin: false
   },
   {
     username: 'sudhir',
@@ -32,7 +32,7 @@ export const USERS_CONFIG: UserConfig[] = [
     username: 'pvikas',
     password: 'WPBmartech@i2025',
     entities: ['alfardan'],
-    isAdmin: false
+    isAdmin: true
   }
 ];
 
