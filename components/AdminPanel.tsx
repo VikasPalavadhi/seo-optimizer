@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { USERS_CONFIG, UserConfig } from '../userConfig';
 import { BRAND_PROFILES } from '../constants';
 
@@ -8,16 +8,58 @@ interface AdminPanelProps {
   onBack: () => void;
 }
 
+const STORAGE_KEY = 'seo_tool_users_override';
+
 const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
-  const [users] = useState<UserConfig[]>(USERS_CONFIG);
-  const [selectedUser, setSelectedUser] = useState<UserConfig | null>(null);
+  const [users, setUsers] = useState<UserConfig[]>([]);
+  const [editingUser, setEditingUser] = useState<UserConfig | null>(null);
   const [showPassword, setShowPassword] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Load users from localStorage or default config
+  useEffect(() => {
+    const savedUsers = localStorage.getItem(STORAGE_KEY);
+    if (savedUsers) {
+      try {
+        setUsers(JSON.parse(savedUsers));
+      } catch {
+        setUsers([...USERS_CONFIG]);
+      }
+    } else {
+      setUsers([...USERS_CONFIG]);
+    }
+  }, []);
 
   const getEntityNames = (entityIds: string[]): string[] => {
     return entityIds.map(id => {
       const profile = BRAND_PROFILES.find(p => p.id === id);
       return profile?.name || id;
     });
+  };
+
+  const handleSaveUser = (updatedUser: UserConfig) => {
+    const updatedUsers = users.map(u =>
+      u.username.toLowerCase() === updatedUser.username.toLowerCase() ? updatedUser : u
+    );
+    setUsers(updatedUsers);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
+    setEditingUser(null);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
+  };
+
+  const toggleEntityAccess = (entityId: string) => {
+    if (!editingUser) return;
+    const hasEntity = editingUser.entities.includes(entityId);
+    const newEntities = hasEntity
+      ? editingUser.entities.filter(e => e !== entityId)
+      : [...editingUser.entities, entityId];
+    setEditingUser({ ...editingUser, entities: newEntities });
+  };
+
+  const toggleAdminStatus = () => {
+    if (!editingUser) return;
+    setEditingUser({ ...editingUser, isAdmin: !editingUser.isAdmin });
   };
 
   return (
@@ -42,11 +84,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
               <p className="text-sm text-slate-500 font-medium mt-1">Manage users and entity access</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-              <span className="text-indigo-600 font-bold text-sm">{currentUser.charAt(0).toUpperCase()}</span>
+          <div className="flex items-center gap-3">
+            {saveSuccess && (
+              <span className="px-3 py-1.5 bg-green-100 text-green-700 text-xs font-bold rounded-lg animate-in fade-in">
+                Changes saved
+              </span>
+            )}
+            <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                <span className="text-indigo-600 font-bold text-sm">{currentUser.charAt(0).toUpperCase()}</span>
+              </div>
+              <span className="font-semibold text-slate-700 text-sm">{currentUser}</span>
             </div>
-            <span className="font-semibold text-slate-700 text-sm">{currentUser}</span>
           </div>
         </header>
 
@@ -54,7 +103,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
           <div className="p-5 sm:p-6 border-b border-slate-100">
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">User Management</h2>
-            <p className="text-sm text-slate-500 mt-1">View and manage user access permissions</p>
+            <p className="text-sm text-slate-500 mt-1">Click Edit to modify user access permissions</p>
           </div>
 
           {/* Desktop Table */}
@@ -66,7 +115,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                   <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-wider">Password</th>
                   <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-wider">Entity Access</th>
                   <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-black text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -124,10 +173,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-lg">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                        Active
-                      </span>
+                      <button
+                        onClick={() => setEditingUser({ ...user })}
+                        className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                      >
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -151,10 +202,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                       </span>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded">
-                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Active
-                  </span>
+                  <button
+                    onClick={() => setEditingUser({ ...user })}
+                    className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg"
+                  >
+                    Edit
+                  </button>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Entity Access</span>
@@ -204,21 +257,124 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
         </div>
 
         {/* Info Note */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 sm:p-5">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 sm:p-5">
           <div className="flex gap-3">
-            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-sm font-semibold text-amber-800">Configuration Note</p>
-              <p className="text-xs text-amber-700 mt-1">
-                User credentials and entity access are currently stored in the application code.
-                For production use, these should be moved to a secure database with proper encryption.
+              <p className="text-sm font-semibold text-emerald-800">Changes Are Saved Locally</p>
+              <p className="text-xs text-emerald-700 mt-1">
+                User access modifications are stored in your browser. Changes will persist across sessions on this device.
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setEditingUser(null)}>
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-lg">{editingUser.username.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900">Edit User</h3>
+                    <p className="text-sm text-slate-500 font-medium">{editingUser.username}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEditingUser(null)}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Admin Toggle */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div>
+                  <p className="font-bold text-slate-900">Admin Access</p>
+                  <p className="text-xs text-slate-500">Can access /admin panel</p>
+                </div>
+                <button
+                  onClick={toggleAdminStatus}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    editingUser.isAdmin ? 'bg-purple-600' : 'bg-slate-300'
+                  }`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                    editingUser.isAdmin ? 'translate-x-7' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Entity Access */}
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-slate-700">Entity Access</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {BRAND_PROFILES.map((profile) => {
+                    const hasAccess = editingUser.entities.includes(profile.id);
+                    return (
+                      <button
+                        key={profile.id}
+                        onClick={() => toggleEntityAccess(profile.id)}
+                        className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                          hasAccess
+                            ? 'border-indigo-400 bg-indigo-50'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow"
+                            style={{ backgroundColor: profile.primaryColor }}
+                          >
+                            {profile.name.charAt(0)}
+                          </div>
+                          <span className="font-bold text-slate-900 text-sm">{profile.name}</span>
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          hasAccess ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'
+                        }`}>
+                          {hasAccess && (
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setEditingUser(null)}
+                  className="flex-1 py-3 px-4 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSaveUser(editingUser)}
+                  className="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
