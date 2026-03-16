@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Generation, SEOVariant, BrandProfile } from '../types';
 import { BRAND_PROFILES } from '../constants';
+import SERPPreview from './SERPPreview';
 
 interface ResultsViewProps {
   generation: Generation;
@@ -9,9 +10,9 @@ interface ResultsViewProps {
 
 const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
   const [activeTab, setActiveTab] = useState<'variants' | 'schema' | 'sources' | 'preview'>('variants');
-  const [previewVariant, setPreviewVariant] = useState<SEOVariant | null>(null);
+  const [serpPreviewIndex, setSerpPreviewIndex] = useState<number | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
-  
+
   const activeProfile = BRAND_PROFILES.find(p => p.id === generation.profileId) || BRAND_PROFILES[0];
 
   const copyToClipboard = (text: string, label: string) => {
@@ -29,47 +30,6 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700 pb-20">
-      {previewVariant && (
-        <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 md:p-6 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3.5rem] w-full max-w-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="px-12 py-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <div>
-                <h4 className="font-black text-slate-900 text-2xl uppercase tracking-tight">Search Result Simulation</h4>
-                <p className="text-[11px] text-[#414042] font-black tracking-[0.4em] uppercase mt-2 opacity-50">Enterprise Asset Visualization</p>
-              </div>
-              <button onClick={() => setPreviewVariant(null)} className="w-14 h-14 flex items-center justify-center rounded-full bg-white shadow-sm text-slate-400 hover:text-rose-500 transition-all border border-slate-200 active:scale-90">
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div className="p-20 md:p-32 bg-white">
-              <div className="max-w-[600px] w-full font-sans">
-                {(() => {
-                  // Extract domain from URL properly
-                  const urlStr = generation.url || '';
-                  const domain = urlStr.replace(/^https?:\/\//, '').split('/')[0] || activeProfile.domain;
-                  return (
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-black text-white border shadow-md uppercase" style={{ backgroundColor: activeProfile.primaryColor }}>
-                        {activeProfile.name.charAt(0)}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[16px] text-[#202124] font-medium leading-none">{domain}</span>
-                        <span className="text-[14px] text-[#4d5156] mt-1">https://{domain} › ...</span>
-                      </div>
-                    </div>
-                  );
-                })()}
-                <h3 className="text-[24px] text-[#1a0dab] hover:underline cursor-pointer leading-[1.3] mb-2 font-normal">{previewVariant.metaTitle}</h3>
-                <p className="text-[16px] text-[#4d5156] leading-[1.58] line-clamp-3">{previewVariant.metaDescription}</p>
-              </div>
-            </div>
-            <div className="px-12 py-10 bg-slate-50 border-t border-slate-100 flex justify-center">
-              <button onClick={() => setPreviewVariant(null)} className="px-16 py-5 bg-slate-900 text-white font-black rounded-3xl text-xs uppercase tracking-[0.3em] shadow-xl active:scale-95 transition-all">Dismiss Preview</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Simplified Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-4">
@@ -154,7 +114,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
                         </div>
                       </div>
                       <div className="lg:w-80 space-y-8 shrink-0">
-                        <button onClick={() => setPreviewVariant(variant)} className="w-full py-6 bg-slate-900 text-white rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-slate-800 shadow-xl transition-all active:scale-95">
+                        <button onClick={() => setSerpPreviewIndex(idx)} className="w-full py-6 bg-slate-900 text-white rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-slate-800 shadow-xl transition-all active:scale-95">
                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                            Google Preview
                         </button>
@@ -386,6 +346,15 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
           </div>
         )}
       </div>
+
+      {/* SERP Preview Modal */}
+      {serpPreviewIndex !== null && (
+        <SERPPreview
+          variant={generation.seoVariants[serpPreviewIndex]}
+          profile={activeProfile}
+          onClose={() => setSerpPreviewIndex(null)}
+        />
+      )}
     </div>
   );
 };

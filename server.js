@@ -173,29 +173,60 @@ Your task is to analyze banking products and generate comprehensive, SEO-optimiz
 
 ### INTELLIGENT NODE DETECTION
 
-Based on content, AUTOMATICALLY add these conditional nodes:
+**CRITICAL ANTI-HALLUCINATION RULE**:
+- ONLY add properties that are EXPLICITLY mentioned in the content
+- If a value/rate/fee is not stated, use "Contact bank for details" or omit the property
+- NEVER invent numbers, percentages, or specific values not found in the content
+- If unsure whether something exists in content, DO NOT include it
 
-**IF content mentions travel/miles/lounge**: Add
-- Airport lounge access details in benefits
-- Travel insurance in additionalProperty
-- LoungeKey/Priority Pass in keywords
+Based on content, AUTOMATICALLY add these conditional nodes ONLY IF explicitly found:
 
-**IF content mentions cashback**: Add
-- Cashback rates in additionalProperty
-- Cashback categories in benefits
+**IF content mentions travel/miles/lounge access**: Add
+- Airport lounge access details in benefits (include specific lounges if mentioned)
+- Travel insurance coverage in additionalProperty (only if coverage details provided)
+- LoungeKey/Priority Pass/DragonPass in keywords
+- Companion ticket offers if mentioned
+
+**IF content mentions cashback/rewards**: Add
+- Cashback rates in additionalProperty (exact percentages only if stated)
+- Cashback categories in benefits (dining, grocery, fuel, etc. as mentioned)
+- Reward points earning rate if specified
 
 **IF content mentions movie/dining/lifestyle offers**: Add
-- Specific offers (VOX Buy 1 Get 1, dining discounts) in benefits
+- Specific offers in benefits (e.g., "Buy 1 Get 1 at VOX Cinemas")
+- Partner merchant names if listed
+- Discount percentages if mentioned
 
 **IF content mentions golf/concierge/valet**: Add
-- Premium lifestyle benefits in benefits array
+- Golf access details (courses, number of rounds) in benefits
+- Concierge service type in benefits
+- Valet parking locations/frequency if stated
 
-**IF content mentions welcome bonus**: Add
+**IF content mentions welcome bonus/offer**: Add
 - Welcome offer details prominently in WebPage about array
-- Bonus miles/points value in additionalProperty
+- Bonus miles/points value in additionalProperty (exact amount only)
+- Conditions for earning welcome bonus
 
-**IF content mentions 0% installments**: Add
-- Installment plans in additionalProperty
+**IF content mentions 0% installments/EMI/payment plans**: Add
+- Installment plan duration in additionalProperty
+- Eligible merchant categories if listed
+- Minimum transaction amount if stated
+
+**IF content mentions insurance coverage**: Add
+- Insurance types (travel, purchase protection, extended warranty) in benefits
+- Coverage amounts only if specified
+
+**IF content mentions forex/international transactions**: Add
+- FX markup rate in additionalProperty (only if percentage stated)
+- International acceptance networks in benefits
+
+**IF content mentions salary transfer benefits**: Add
+- Salary transfer perks in benefits
+- Fee waivers linked to salary transfer
+
+**IF content mentions minimum spend requirements**: Add
+- Minimum spend thresholds in additionalProperty
+- Benefits tied to spend levels
 
 ### CHANNEL-SPECIFIC RULES
 
@@ -218,15 +249,24 @@ Based on content, AUTOMATICALLY add these conditional nodes:
 ### CRITICAL SEO RULES
 1. Keywords array must have 25-30 highly relevant terms
 2. About array must list 5-8 key product features as Things
-3. Benefits must be specific with numbers (not vague)
+3. Benefits must be specific with numbers (not vague) - ONLY if numbers exist in content
 4. All currency values in AED
 5. Include potentialAction with ApplyAction
 6. FAQs must answer real user questions (eligibility, fees, rewards)
-7. additionalProperty must include all fee structures
+7. additionalProperty must include all fee structures FOUND in content
 8. NO AggregateRating or Review (banking compliance)
 9. Plain text only in FAQ answers (no HTML)
+10. VERIFICATION: Before adding any property, confirm it exists verbatim or can be directly inferred from the extracted content
 
-Return schema as complete @graph JSON with all applicable nodes.
+### CONTENT-DRIVEN SCHEMA ENRICHMENT
+After extracting content, scan for these additional schema opportunities:
+- Product comparison mentions → Add competitor context in description
+- App/digital banking features → Add "availableChannel" property
+- Customer segment targeting → Add "audience" property with eligibility
+- Promotional periods → Add "validFrom"/"validThrough" if dates mentioned
+- Document requirements → Add to FAQ answers
+
+Return schema as complete @graph JSON with all applicable nodes detected from content.
 `;
 
 const app = express();
