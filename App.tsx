@@ -83,6 +83,14 @@ const App: React.FC = () => {
 
   const handleLogin = (username: string) => {
     setUser(username);
+    // Check if we're at /admin and user is admin
+    const path = window.location.pathname;
+    if (path === '/admin' && isUserAdmin(username)) {
+      setView('admin');
+      localStorage.setItem('seo_tool_user', username);
+      localStorage.setItem('seo_tool_session_time', Date.now().toString());
+      return;
+    }
     setView('module-select');
     // Save session to localStorage
     localStorage.setItem('seo_tool_user', username);
