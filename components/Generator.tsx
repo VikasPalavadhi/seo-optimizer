@@ -15,11 +15,12 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete, onBack }) =>
   const [pastedHtml, setPastedHtml] = useState('');
   const [uploadedFile, setUploadedFile] = useState<{ name: string; data: string; mimeType: string } | null>(null);
   const [pageType, setPageType] = useState<PageType | 'auto'>('auto');
-  const [modelProvider, setModelProvider] = useState<ModelProvider>(ModelProvider.GEMINI);
+  const [modelProvider, setModelProvider] = useState<ModelProvider>(ModelProvider.OPENAI);
   const [inputMethod, setInputMethod] = useState<'text' | 'file'>('text');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string; type: 'limit' | 'error' | 'timeout' } | null>(null);
   const [loadingTime, setLoadingTime] = useState(0);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -268,10 +269,12 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete, onBack }) =>
                 <button
                   key="gemini"
                   type="button"
-                  onClick={() => setModelProvider(ModelProvider.GEMINI)}
-                  className={`py-6 px-6 rounded-[1.5rem] text-sm font-black uppercase tracking-wide transition-all border-2 flex flex-col items-center justify-center gap-2 ${modelProvider === ModelProvider.GEMINI ? 'shadow-xl scale-[1.02]' : 'bg-white border-slate-50 text-[#414042] hover:border-slate-200 opacity-60 hover:opacity-100'}`}
-                  style={modelProvider === ModelProvider.GEMINI ? { backgroundColor: '#63bfb5', borderColor: '#63bfb5', color: '#461e57', opacity: 1 } : {}}
+                  onClick={() => setShowComingSoon(true)}
+                  className="py-6 px-6 rounded-[1.5rem] text-sm font-black uppercase tracking-wide transition-all border-2 flex flex-col items-center justify-center gap-2 bg-white border-slate-50 text-[#414042] hover:border-slate-200 opacity-50 relative"
                 >
+                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-[8px] font-black uppercase tracking-wider rounded-full">
+                    Coming Soon
+                  </div>
                   <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>
                   <span>Google Gemini</span>
                   <span className="text-[9px] opacity-70">Gemini 2.0 Flash</span>
@@ -325,6 +328,33 @@ const Generator: React.FC<GeneratorProps> = ({ profile, onComplete, onBack }) =>
       <footer className="text-center pt-6 pb-10">
         <p className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] opacity-30">Global Enterprise Optimization Framework v3.1</p>
       </footer>
+
+      {/* Coming Soon Modal */}
+      {showComingSoon && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowComingSoon(false)}>
+          <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="text-center space-y-6">
+              <div className="inline-flex p-5 rounded-2xl bg-amber-50 text-amber-500">
+                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black text-slate-900">Coming Soon</h3>
+                <p className="text-base text-slate-600 font-medium">
+                  Google Gemini integration is currently under development. Please use OpenAI GPT-4 for now.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowComingSoon(false)}
+                className="w-full py-4 px-6 bg-slate-900 text-white rounded-2xl font-bold text-base hover:bg-slate-800 transition-all active:scale-95"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,16 +1,10 @@
 
 import React, { useState } from 'react';
+import { validateUser } from '../userConfig';
 
 interface LoginProps {
   onLogin: (user: string) => void;
 }
-
-// Valid users with their credentials
-const VALID_USERS: Record<string, string> = {
-  'hakan': 'WPBmartech@i2025',
-  'vikas': 'WPBmartech@i2025',
-  'sudhir': 'WPBmartech@i2025'
-};
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -21,10 +15,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     setError('');
 
-    // Validate credentials
-    const lowercaseUsername = username.toLowerCase();
-    if (VALID_USERS[lowercaseUsername as keyof typeof VALID_USERS] === password) {
-      onLogin(username);
+    // Validate credentials using userConfig
+    const user = validateUser(username, password);
+    if (user) {
+      onLogin(user.username);
     } else {
       setError('Invalid credentials. Please check your username and password.');
     }

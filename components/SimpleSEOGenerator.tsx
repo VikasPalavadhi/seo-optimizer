@@ -19,6 +19,7 @@ const SimpleSEOGenerator: React.FC<SimpleSEOGeneratorProps> = ({ profile, onComp
   const [modelProvider, setModelProvider] = useState<ModelProvider>(ModelProvider.OPENAI);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const contentTypes = [
     { id: 'campaign', label: 'Campaign', icon: '🎯' },
@@ -152,17 +153,14 @@ const SimpleSEOGenerator: React.FC<SimpleSEOGeneratorProps> = ({ profile, onComp
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <button
               type="button"
-              onClick={() => setModelProvider(ModelProvider.GEMINI)}
-              className={`p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.25rem] md:rounded-[1.5rem] text-left border-2 transition-all touch-manipulation active:scale-95 ${
-                modelProvider === ModelProvider.GEMINI
-                  ? 'border-indigo-400 bg-indigo-50 shadow-lg'
-                  : 'border-slate-200 bg-white hover:border-slate-300'
-              }`}
+              onClick={() => setShowComingSoon(true)}
+              className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-[1.25rem] md:rounded-[1.5rem] text-left border-2 transition-all touch-manipulation active:scale-95 border-slate-200 bg-white hover:border-slate-300 opacity-60 relative"
             >
+              <div className="absolute top-2 right-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-wider rounded-full">
+                Coming Soon
+              </div>
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center font-black text-base sm:text-lg flex-shrink-0 ${
-                  modelProvider === ModelProvider.GEMINI ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-400'
-                }`}>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center font-black text-base sm:text-lg flex-shrink-0 bg-slate-100 text-slate-400">
                   G
                 </div>
                 <div className="min-w-0 flex-1">
@@ -256,6 +254,33 @@ const SimpleSEOGenerator: React.FC<SimpleSEOGeneratorProps> = ({ profile, onComp
           Quick SEO Optimization v1.0
         </p>
       </footer>
+
+      {/* Coming Soon Modal */}
+      {showComingSoon && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowComingSoon(false)}>
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="text-center space-y-4 sm:space-y-6">
+              <div className="inline-flex p-4 sm:p-5 rounded-2xl bg-amber-50 text-amber-500">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900">Coming Soon</h3>
+                <p className="text-sm sm:text-base text-slate-600 font-medium">
+                  Google Gemini integration is currently under development. Please use OpenAI GPT-4o for now.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowComingSoon(false)}
+                className="w-full py-3 sm:py-4 px-6 bg-slate-900 text-white rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base hover:bg-slate-800 transition-all active:scale-95"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

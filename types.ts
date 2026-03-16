@@ -88,4 +88,4 @@ export interface Generation {
   groundingSources?: GroundingSource[];
 }
 
-export type ViewState = 'login' | 'module-select' | 'simple-seo' | 'full-seo' | 'results' | 'history';
+export type ViewState = 'login' | 'module-select' | 'simple-seo' | 'full-seo' | 'results' | 'history' | 'admin';

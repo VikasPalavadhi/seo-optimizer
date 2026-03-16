@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState, Generation, BrandProfile, SEOVariant, AIRecommendation } from './types';
 import { BRAND_PROFILES } from './constants';
+import { isUserAdmin } from './userConfig';
 import Layout from './components/Layout';
 import Login from './components/Login';
 import ModuleSelector from './components/ModuleSelector';
@@ -10,6 +11,7 @@ import SimpleSEOGenerator from './components/SimpleSEOGenerator';
 import ResultsView from './components/ResultsView';
 import SimpleResultsView from './components/SimpleResultsView';
 import HistoryList from './components/HistoryList';
+import AdminPanel from './components/AdminPanel';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('login');
@@ -19,8 +21,24 @@ const App: React.FC = () => {
   const [currentGeneration, setCurrentGeneration] = useState<Generation | null>(null);
   const [currentSimpleResult, setCurrentSimpleResult] = useState<{ variants: SEOVariant[], aiRec: AIRecommendation } | null>(null);
 
+  // Check for /admin route on mount
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/admin') {
+      const savedUser = localStorage.getItem('seo_tool_user');
+      if (savedUser && isUserAdmin(savedUser)) {
+        setUser(savedUser);
+        setView('admin');
+        return;
+      }
+    }
+  }, []);
+
   // Load user session and history from local storage on mount
   useEffect(() => {
+    // Skip if already on admin view
+    if (view === 'admin' && user) return;
+
     // Restore user session
     const savedUser = localStorage.getItem('seo_tool_user');
     const savedView = localStorage.getItem('seo_tool_view');
@@ -55,7 +73,7 @@ const App: React.FC = () => {
         console.error("Failed to parse history");
       }
     }
-  }, []);
+  }, [view, user]);
 
   const saveToHistory = (gen: Generation) => {
     const newHistory = [gen, ...history];
@@ -96,6 +114,13 @@ const App: React.FC = () => {
     localStorage.removeItem('seo_tool_user');
     localStorage.removeItem('seo_tool_view');
     localStorage.removeItem('seo_tool_session_time');
+    // Reset URL to root
+    window.history.pushState({}, '', '/');
+  };
+
+  const handleBackFromAdmin = () => {
+    setView('module-select');
+    window.history.pushState({}, '', '/');
   };
 
   const handleGenerationComplete = (gen: Generation) => {
@@ -148,6 +173,14 @@ const App: React.FC = () => {
 
   if (view === 'login') {
     return <Login onLogin={handleLogin} />;
+  }
+
+  if (view === 'admin') {
+    if (!user || !isUserAdmin(user)) {
+      // Redirect to login if not admin
+      return <Login onLogin={handleLogin} />;
+    }
+    return <AdminPanel currentUser={user} onBack={handleBackFromAdmin} />;
   }
 
   return (
