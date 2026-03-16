@@ -29,13 +29,31 @@ const App: React.FC = () => {
       if (savedUser && isUserAdmin(savedUser)) {
         setUser(savedUser);
         setView('admin');
-        return;
+      } else {
+        // At /admin but not logged in as admin - stay on login view
+        setView('login');
       }
+      return;
     }
   }, []);
 
   // Load user session and history from local storage on mount
   useEffect(() => {
+    // Skip session restore if at /admin path - handled by first useEffect
+    const path = window.location.pathname;
+    if (path === '/admin') {
+      // Only load history, not session
+      const saved = localStorage.getItem('seo_tool_history');
+      if (saved) {
+        try {
+          setHistory(JSON.parse(saved));
+        } catch (e) {
+          console.error("Failed to parse history");
+        }
+      }
+      return;
+    }
+
     // Skip if already on admin view
     if (view === 'admin' && user) return;
 
