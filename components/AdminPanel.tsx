@@ -15,6 +15,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
   const [editingUser, setEditingUser] = useState<UserConfig | null>(null);
   const [showPassword, setShowPassword] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [newUser, setNewUser] = useState<UserConfig>({
+    username: '',
+    password: '',
+    entities: [],
+    isAdmin: false
+  });
+  const [addUserError, setAddUserError] = useState('');
 
   // Load users from localStorage or default config
   useEffect(() => {
@@ -62,6 +71,68 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
     setEditingUser({ ...editingUser, isAdmin: !editingUser.isAdmin });
   };
 
+  const handleAddUser = () => {
+    setAddUserError('');
+
+    // Validate
+    if (!newUser.username.trim()) {
+      setAddUserError('Username is required');
+      return;
+    }
+    if (!newUser.password.trim()) {
+      setAddUserError('Password is required');
+      return;
+    }
+    if (newUser.entities.length === 0) {
+      setAddUserError('Select at least one entity');
+      return;
+    }
+
+    // Check for duplicate username
+    const exists = users.some(u => u.username.toLowerCase() === newUser.username.toLowerCase().trim());
+    if (exists) {
+      setAddUserError('Username already exists');
+      return;
+    }
+
+    const userToAdd = {
+      ...newUser,
+      username: newUser.username.trim()
+    };
+
+    const updatedUsers = [...users, userToAdd];
+    setUsers(updatedUsers);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
+
+    // Reset form
+    setNewUser({ username: '', password: '', entities: [], isAdmin: false });
+    setShowAddUser(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
+  };
+
+  const handleDeleteUser = (username: string) => {
+    // Prevent deleting current user
+    if (username.toLowerCase() === currentUser.toLowerCase()) {
+      return;
+    }
+
+    const updatedUsers = users.filter(u => u.username.toLowerCase() !== username.toLowerCase());
+    setUsers(updatedUsers);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUsers));
+    setDeleteConfirm(null);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
+  };
+
+  const toggleNewUserEntity = (entityId: string) => {
+    const hasEntity = newUser.entities.includes(entityId);
+    const newEntities = hasEntity
+      ? newUser.entities.filter(e => e !== entityId)
+      : [...newUser.entities, entityId];
+    setNewUser({ ...newUser, entities: newEntities });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/30 p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
@@ -90,6 +161,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                 Changes saved
               </span>
             )}
+            <button
+              onClick={() => setShowAddUser(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+              </svg>
+              <span className="hidden sm:inline">Add User</span>
+            </button>
             <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
               <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
                 <span className="text-indigo-600 font-bold text-sm">{currentUser.charAt(0).toUpperCase()}</span>
@@ -173,12 +253,22 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => setEditingUser({ ...user })}
-                        className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setEditingUser({ ...user })}
+                          className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        {user.username.toLowerCase() !== currentUser.toLowerCase() && (
+                          <button
+                            onClick={() => setDeleteConfirm(user.username)}
+                            className="px-4 py-2 bg-red-100 text-red-700 text-xs font-bold rounded-lg hover:bg-red-200 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -202,12 +292,22 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                       </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setEditingUser({ ...user })}
-                    className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg"
-                  >
-                    Edit
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setEditingUser({ ...user })}
+                      className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg"
+                    >
+                      Edit
+                    </button>
+                    {user.username.toLowerCase() !== currentUser.toLowerCase() && (
+                      <button
+                        onClick={() => setDeleteConfirm(user.username)}
+                        className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-bold rounded-lg"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Entity Access</span>
@@ -369,6 +469,193 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentUser, onBack }) => {
                   className="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors"
                 >
                   Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowAddUser(false)}>
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900">Add New User</h3>
+                    <p className="text-sm text-slate-500 font-medium">Create a new user account</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAddUser(false)}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Error Message */}
+              {addUserError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-semibold">
+                  {addUserError}
+                </div>
+              )}
+
+              {/* Username */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                <input
+                  type="text"
+                  value={newUser.username}
+                  onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-semibold text-slate-700"
+                  placeholder="Enter username"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                <input
+                  type="text"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-semibold text-slate-700"
+                  placeholder="Enter password"
+                />
+              </div>
+
+              {/* Admin Toggle */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div>
+                  <p className="font-bold text-slate-900">Admin Access</p>
+                  <p className="text-xs text-slate-500">Can access /admin panel</p>
+                </div>
+                <button
+                  onClick={() => setNewUser({ ...newUser, isAdmin: !newUser.isAdmin })}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    newUser.isAdmin ? 'bg-purple-600' : 'bg-slate-300'
+                  }`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                    newUser.isAdmin ? 'translate-x-7' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Entity Access */}
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-slate-700">Entity Access</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {BRAND_PROFILES.map((profile) => {
+                    const hasAccess = newUser.entities.includes(profile.id);
+                    return (
+                      <button
+                        key={profile.id}
+                        onClick={() => toggleNewUserEntity(profile.id)}
+                        className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                          hasAccess
+                            ? 'border-indigo-400 bg-indigo-50'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow"
+                            style={{ backgroundColor: profile.primaryColor }}
+                          >
+                            {profile.name.charAt(0)}
+                          </div>
+                          <span className="font-bold text-slate-900 text-sm">{profile.name}</span>
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          hasAccess ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'
+                        }`}>
+                          {hasAccess && (
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowAddUser(false);
+                    setNewUser({ username: '', password: '', entities: [], isAdmin: false });
+                    setAddUserError('');
+                  }}
+                  className="flex-1 py-3 px-4 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddUser}
+                  className="flex-1 py-3 px-4 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors"
+                >
+                  Add User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900">Delete User</h3>
+                  <p className="text-sm text-slate-500 font-medium">This action cannot be undone</p>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm text-red-800">
+                  Are you sure you want to delete <span className="font-bold">{deleteConfirm}</span>?
+                  This will permanently remove their access to the system.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 py-3 px-4 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteUser(deleteConfirm)}
+                  className="flex-1 py-3 px-4 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors"
+                >
+                  Delete User
                 </button>
               </div>
             </div>
