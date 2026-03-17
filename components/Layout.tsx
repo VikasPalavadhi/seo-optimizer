@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ViewState, BrandProfile, Generation, SEOVariant } from '../types';
 import { BRAND_PROFILES } from '../constants';
+import { getUserByUsername } from '../userConfig';
 import ChatBot from './ChatBot';
 
 interface LayoutProps {
@@ -24,6 +25,14 @@ const Layout: React.FC<LayoutProps> = ({
   // Sidebar always hidden by default
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Filter brand profiles based on user's entity access
+  const userProfiles = useMemo(() => {
+    if (!user) return BRAND_PROFILES;
+    const userConfig = getUserByUsername(user);
+    if (!userConfig) return BRAND_PROFILES;
+    return BRAND_PROFILES.filter(profile => userConfig.entities.includes(profile.id));
+  }, [user]);
 
   const themeStyles = {
     '--brand-primary': activeProfile.primaryColor,
@@ -162,7 +171,7 @@ const Layout: React.FC<LayoutProps> = ({
             <div className="mt-auto pt-6 sm:pt-8 border-t border-slate-100">
               <label className="text-[9px] sm:text-[10px] font-black text-[#414042]/40 uppercase tracking-[0.3em] sm:tracking-[0.4em] ml-3 sm:ml-4 mb-4 sm:mb-5 block">Brand Identity</label>
               <div className="space-y-2 sm:space-y-3">
-                {BRAND_PROFILES.map(profile => (
+                {userProfiles.map(profile => (
                   <button
                     key={profile.id}
                     onClick={() => { setActiveProfile(profile); setIsSidebarOpen(false); }}
