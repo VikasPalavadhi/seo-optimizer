@@ -40,22 +40,6 @@ export const BRAND_PROFILES: BrandProfile[] = [
     accentColor: '#2765ff',
     surfaceColor: '#f0f7ff'
   },
-  {
-    id: 'alfardan',
-    name: 'Alfardan Group',
-    legalName: 'Alfardan Group LLC',
-    orgType: 'Corporation',
-    domain: 'www.alfardangroup.com',
-    logoUrl: 'https://www.alfardangroup.com/assets/images/logo.png',
-    address: ['Alfardan Towers, West Bay, Doha, Qatar'],
-    contactPoints: [{ type: 'Customer Service', value: '+974 4409 9999' }],
-    sameAs: [
-      'https://www.linkedin.com/company/alfardan-group'
-    ],
-    primaryColor: '#1a365d',
-    accentColor: '#c9a227',
-    surfaceColor: '#f7f5f0'
-  }
 ];
 
 export const PAGE_TYPES = Object.values(PageType);
