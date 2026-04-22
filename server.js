@@ -502,28 +502,79 @@ app.post('/api/generate', async (req, res) => {
       });
 
     } else {
-      // Gemini Handler (existing logic)
-      const { contents, config, systemInstruction } = req.body;
-
-      if (!contents || !systemInstruction) {
-        return res.status(400).json({ error: 'Invalid Gemini request payload' });
-      }
-
+      // Gemini Handler
       const ai = getGeminiInstance();
 
+      const modelName = isUrl ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+
+      const brandContext = `
+        BRAND CONTEXT: ${profile.legalName} (${profile.name})
+        - Website: https://${profile.domain}/
+        - Logo: ${profile.logoUrl}
+        - Org Type: ${profile.orgType}
+      `;
+
+      const systemInstruction = `
+        You are an elite Enterprise SEO Architect specializing in banking and financial services.
+
+        ${brandContext}
+
+        ${BANKING_SCHEMA_INSTRUCTION}
+
+        ### CRITICAL CONSTRAINTS:
+        - NO mentions of "AI", "Gemini", or "LLM" in user-facing output text.
+        - For Emirates Islamic (emiratesislamic.ae): ALWAYS use "Profit Rate" instead of "Interest Rate"
+        - For Emirates Islamic: Include Islamic finance terminology in alternateName (Murabaha, Ijara, etc.)
+        - Schema must be a complete @graph JSON object, not a string
+        - FAQPage answers must be plain text only (no HTML tags)
+
+        Return a valid JSON object with keys: pageType, extraction (titleCurrent, metaCurrent, h1Current, headings, mainTextPreview), seoVariants (array of 3 with h1, metaTitle, metaDescription, url, keyphrases, rationale, bestFor, justification, situationalComparison), aiRecommendation (winnerIndex, expertRationale, comparisonNotes), strategicImpact (visibilityScore, trustScore, complianceScore, growthRationale, entityLinkage), schemaJsonld, schemaCommentary, validation (errors, warnings, suggestions).
+      `;
+
+      let userContent = '';
+      if (isUrl && typeof input === 'string') {
+        userContent = `Perform an Enterprise Growth Audit for this URL: ${input}`;
+      } else if (typeof input === 'object' && input.data) {
+        userContent = `Deep-dive analysis of the attached document. Extract core message and technical SEO requirements.`;
+      } else {
+        userContent = `Semantic analysis of provided content: ${typeof input === 'string' ? input.substring(0, 20000) : JSON.stringify(input)}`;
+      }
+
+      const geminiConfig = {
+        systemInstruction,
+        temperature: 0.1,
+        responseMimeType: "application/json",
+      };
+
+      if (isUrl) {
+        geminiConfig.tools = [{ googleSearch: {} }];
+      }
+
       const response = await ai.models.generateContent({
-        model: config.model || 'gemini-2.5-flash',
-        contents: contents,
-        config: {
-          ...config,
-          systemInstruction: systemInstruction,
-          responseMimeType: "application/json"
-        }
+        model: modelName,
+        contents: [{ role: 'user', parts: [{ text: userContent }] }],
+        config: geminiConfig
       });
 
+      const resultText = response.text;
+      if (!resultText) throw new Error("Gemini returned empty response.");
+
+      let data = JSON.parse(resultText);
+      if (typeof data.schemaJsonld === 'string') {
+        try { data.schemaJsonld = JSON.parse(data.schemaJsonld); } catch (e) {}
+      }
+
+      const groundingSources = [];
+      const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
+      if (groundingMetadata?.groundingChunks) {
+        groundingMetadata.groundingChunks.forEach(chunk => {
+          if (chunk.web) groundingSources.push({ title: chunk.web.title || 'Source', uri: chunk.web.uri });
+        });
+      }
+
       res.json({
-        text: response.text,
-        groundingMetadata: response.candidates?.[0]?.groundingMetadata
+        data: JSON.stringify(data),
+        groundingSources
       });
     }
 

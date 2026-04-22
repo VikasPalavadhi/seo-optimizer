@@ -36,9 +36,22 @@ export const USERS_CONFIG: UserConfig[] = [
   }
 ];
 
+const STORAGE_KEY = 'seo_tool_users_override';
+
+// Returns the active user list — localStorage overrides take priority over hardcoded config
+const getActiveUsers = (): UserConfig[] => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // ignore
+  }
+  return USERS_CONFIG;
+};
+
 // Helper function to validate user
 export const validateUser = (username: string, password: string): UserConfig | null => {
-  const user = USERS_CONFIG.find(
+  const user = getActiveUsers().find(
     u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
   );
   return user || null;
@@ -46,7 +59,7 @@ export const validateUser = (username: string, password: string): UserConfig | n
 
 // Helper function to get user by username
 export const getUserByUsername = (username: string): UserConfig | null => {
-  return USERS_CONFIG.find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
+  return getActiveUsers().find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
 };
 
 // Helper function to check if user is admin

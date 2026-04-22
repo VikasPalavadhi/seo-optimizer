@@ -242,13 +242,14 @@ const App: React.FC = () => {
         />
       )}
       {view === 'results' && currentGeneration && (
-        <ResultsView generation={currentGeneration} />
+        <ResultsView generation={currentGeneration} onBack={handleBackToModules} />
       )}
       {view === 'results' && currentSimpleResult && !currentGeneration && (
         <SimpleResultsView
           variants={currentSimpleResult.variants}
           aiRecommendation={currentSimpleResult.aiRec}
           profile={activeProfile}
+          onBack={handleBackToModules}
         />
       )}
       {view === 'history' && (

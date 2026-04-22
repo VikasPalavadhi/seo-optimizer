@@ -84,11 +84,9 @@ export const generateContent = async (
   modelProvider: ModelProvider = ModelProvider.GEMINI
 ): Promise<GeminiResponse & { groundingSources: GroundingSource[] }> => {
   // Always use backend for security (protects API keys)
-  if (modelProvider === ModelProvider.OPENAI) {
-    return await generateWithBackend(input, profile, isUrl, modelProvider);
-  }
+  return await generateWithBackend(input, profile, isUrl, modelProvider);
 
-  // For Gemini, continue with direct API call but update model name
+  // Legacy: direct Gemini call (kept for reference, unreachable)
   const modelName = isUrl ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
   const ai = getAiInstance();
 

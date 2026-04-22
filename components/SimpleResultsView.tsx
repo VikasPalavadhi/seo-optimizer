@@ -7,9 +7,10 @@ interface SimpleResultsViewProps {
   variants: SEOVariant[];
   aiRecommendation: AIRecommendation;
   profile: BrandProfile;
+  onBack?: () => void;
 }
 
-const SimpleResultsView: React.FC<SimpleResultsViewProps> = ({ variants, aiRecommendation, profile }) => {
+const SimpleResultsView: React.FC<SimpleResultsViewProps> = ({ variants, aiRecommendation, profile, onBack }) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [serpPreviewIndex, setSerpPreviewIndex] = useState<number | null>(null);
 
@@ -30,13 +31,27 @@ Keyphrases: ${variant.keyphrases.join(', ')}`;
   return (
     <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {/* Header */}
-      <header className="text-center space-y-3 sm:space-y-4 px-2">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter">
-          SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Variants</span>
-        </h2>
-        <p className="text-[#414042] font-medium text-sm sm:text-base lg:text-lg">
-          Choose the variant that best fits your strategy
-        </p>
+      <header className="space-y-3 sm:space-y-4 px-2">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-2 p-3 hover:bg-slate-100 rounded-xl transition-all text-[#414042] active:scale-90"
+            title="Back to Dashboard"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span className="text-sm font-bold">Back</span>
+          </button>
+        )}
+        <div className="text-center space-y-3 sm:space-y-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter">
+            SEO <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-400">Variants</span>
+          </h2>
+          <p className="text-[#414042] font-medium text-sm sm:text-base lg:text-lg">
+            Choose the variant that best fits your strategy
+          </p>
+        </div>
       </header>
 
       {/* AI Recommendation Card */}

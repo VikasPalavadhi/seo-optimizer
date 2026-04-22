@@ -6,9 +6,10 @@ import SERPPreview from './SERPPreview';
 
 interface ResultsViewProps {
   generation: Generation;
+  onBack?: () => void;
 }
 
-const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
+const ResultsView: React.FC<ResultsViewProps> = ({ generation, onBack }) => {
   const [activeTab, setActiveTab] = useState<'variants' | 'schema' | 'sources' | 'preview'>('variants');
   const [serpPreviewIndex, setSerpPreviewIndex] = useState<number | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
@@ -34,6 +35,18 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation }) => {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-4">
           <div className="flex items-center gap-5">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="inline-flex items-center gap-2 p-3 hover:bg-slate-100 rounded-xl transition-all text-[#414042] active:scale-90"
+                title="Back to Dashboard"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="text-sm font-bold">Back</span>
+              </button>
+            )}
              <span className="px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-white shadow-lg" style={{ backgroundColor: activeProfile.primaryColor }}>Audit Results</span>
              <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
              <span className="text-[#414042] text-[10px] font-black uppercase tracking-[0.4em] opacity-40">Protocol v3.1</span>
