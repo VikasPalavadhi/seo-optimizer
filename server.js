@@ -272,6 +272,9 @@ Return schema as complete @graph JSON with all applicable nodes detected from co
 const app = express();
 const PORT = process.env.PORT || 3007;
 
+// Trust Nginx proxy (required for express-rate-limit behind Nginx)
+app.set('trust proxy', 1);
+
 // 1. Security Headers
 app.use(helmet());
 
