@@ -74,68 +74,83 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation, onBack }) => {
 
       <div className="mt-6">
         {activeTab === 'variants' && (
-          <div className="space-y-16">
-            <div className="grid grid-cols-1 gap-12">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {generation.seoVariants.map((variant: any, idx) => {
                 const isWinner = generation.aiRecommendation?.winnerIndex === idx;
                 const isEnhanced = variant.isEnhanced === true;
                 return (
-                  <div key={idx} className={`relative group bg-white border-2 rounded-[4rem] p-6 sm:p-8 md:p-12 lg:p-16 transition-all ${isWinner ? 'shadow-3xl' : isEnhanced ? 'border-[#63bfb5] hover:border-[#63bfb5]' : 'border-slate-100 hover:border-indigo-100'}`} style={isWinner ? { borderColor: activeProfile.primaryColor, boxShadow: `0 40px 80px -20px ${activeProfile.primaryColor}15` } : {}}>
+                  <div key={idx} className={`relative bg-white border-2 rounded-2xl p-5 transition-all hover:scale-[1.01] ${isWinner ? '' : isEnhanced ? 'border-[#63bfb5]' : 'border-slate-200 hover:border-indigo-200'}`} style={isWinner ? { borderColor: activeProfile.primaryColor, boxShadow: `0 8px 32px -8px ${activeProfile.primaryColor}25` } : {}}>
+                    {/* Badge */}
                     {isWinner && (
-                      <div
-                        className="absolute -top-7 left-12 px-10 py-5 text-white text-[11px] font-black uppercase tracking-[0.4em] rounded-full shadow-2xl flex items-center gap-4"
-                        style={{ backgroundColor: activeProfile.primaryColor }}
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                        Recommended Strategy
+                      <div className="absolute -top-3 left-4">
+                        <span className="px-3 py-1 text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5" style={{ backgroundColor: activeProfile.primaryColor }}>
+                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                          Recommended
+                        </span>
                       </div>
                     )}
                     {isEnhanced && (
-                      <div
-                        className="absolute -top-7 left-12 px-10 py-5 text-[#461e57] text-[11px] font-black uppercase tracking-[0.4em] rounded-full shadow-2xl flex items-center gap-4"
-                        style={{ backgroundColor: '#63bfb5' }}
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/><path fillRule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clipRule="evenodd"/></svg>
-                        Enhanced via Chat
+                      <div className="absolute -top-3 left-4">
+                        <span className="px-3 py-1 text-[#461e57] text-[9px] font-black uppercase tracking-widest rounded-full shadow-lg" style={{ backgroundColor: '#63bfb5' }}>Enhanced</span>
                       </div>
                     )}
-                    <div className="flex flex-col lg:flex-row gap-12 md:gap-20">
-                      <div className="flex-1 space-y-6 md:space-y-10 lg:space-y-12">
-                        <div className="space-y-4">
-                          <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40">Primary H1</label>
-                          <div className="p-8 bg-[#fbfbfd] rounded-[2rem] border border-slate-100 group-hover:bg-white group-hover:border-indigo-100 transition-all shadow-sm">
-                            <p className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 leading-tight tracking-tight">{variant.metaTitle}</p>
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40">Meta Description</label>
-                          <div className="p-8 bg-[#fbfbfd] rounded-[2rem] border border-slate-100 group-hover:bg-white group-hover:border-indigo-100 transition-all shadow-sm">
-                            <p className="text-[#414042] text-lg leading-relaxed font-medium">{variant.metaDescription}</p>
-                          </div>
-                        </div>
-                        <div className="pt-8 border-t border-slate-50 space-y-10">
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                              <div>
-                                 <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] mb-4 block opacity-40">Rationale</label>
-                                 <p className="text-base font-bold text-[#414042] leading-relaxed border-l-4 pl-6 opacity-70" style={{ borderColor: activeProfile.accentColor }}>{variant.justification}</p>
-                              </div>
-                              <div>
-                                 <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] mb-4 block opacity-40">Market Fit</label>
-                                 <p className="text-base font-bold text-[#414042] italic bg-[#fbfbfd] p-6 rounded-2xl border border-slate-100">"{variant.situationalComparison}"</p>
-                              </div>
-                           </div>
+
+                    <div className="space-y-3 mt-1">
+                      {/* Number */}
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-white font-black text-xs shadow" style={{ backgroundColor: isWinner ? activeProfile.primaryColor : '#94a3b8' }}>{idx + 1}</span>
+                        <div className="flex gap-2">
+                          <button onClick={() => setSerpPreviewIndex(idx)} className="px-3 py-1.5 bg-slate-900 text-white rounded-lg font-black text-[10px] uppercase tracking-wider flex items-center gap-1.5 hover:bg-slate-700 transition-all">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            Preview
+                          </button>
+                          <button onClick={() => copyToClipboard(`H1: ${variant.h1}\nMeta Title: ${variant.metaTitle}\nMeta Description: ${variant.metaDescription}${variant.url ? '\nURL: ' + variant.url : ''}`, `Asset ${idx+1}`)} className="px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider border-2 transition-all hover:bg-slate-50" style={{ color: activeProfile.primaryColor, borderColor: activeProfile.primaryColor }}>
+                            {copySuccess === `Asset ${idx+1}` ? '✓' : 'Copy'}
+                          </button>
                         </div>
                       </div>
-                      <div className="lg:w-80 space-y-8 shrink-0">
-                        <button onClick={() => setSerpPreviewIndex(idx)} className="w-full py-6 bg-slate-900 text-white rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-slate-800 shadow-xl transition-all active:scale-95">
-                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                           Google Preview
-                        </button>
-                        <div className="p-8 bg-[#fbfbfd] rounded-[2.5rem] border border-slate-100 space-y-6">
-                          <label className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] block opacity-40">Target Keywords</label>
-                          <div className="flex flex-wrap gap-2">{variant.keyphrases.map((kp, kpi) => (<span key={kpi} className="px-4 py-2 bg-white text-[10px] font-black text-[#414042] rounded-lg shadow-sm border border-slate-100 uppercase tracking-tight">{kp}</span>))}</div>
+
+                      {/* H1 */}
+                      <div>
+                        <label className="text-[9px] font-black text-[#414042] uppercase tracking-[0.4em] opacity-40">H1 Headline</label>
+                        <p className="text-sm font-black text-slate-900 leading-tight mt-1">{variant.h1}</p>
+                      </div>
+
+                      {/* URL */}
+                      {variant.url && (
+                        <div>
+                          <label className="text-[9px] font-black text-[#414042] uppercase tracking-[0.4em] opacity-40">Target URL</label>
+                          <p className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-lg mt-1 break-all">{variant.url}</p>
                         </div>
-                        <button onClick={() => copyToClipboard(variant.metaTitle + "\n" + variant.metaDescription, `Asset ${idx+1}`)} className="w-full text-center text-[12px] font-black uppercase tracking-[0.3em] py-5 rounded-[1.25rem] transition-all border-2 border-transparent hover:bg-slate-50" style={{ color: activeProfile.primaryColor }}>{copySuccess === `Asset ${idx+1}` ? '✓ Copied' : 'Copy Content'}</button>
+                      )}
+
+                      {/* Meta Title */}
+                      <div>
+                        <label className="text-[9px] font-black text-[#414042] uppercase tracking-[0.4em] opacity-40">Meta Title</label>
+                        <p className="text-xs font-semibold text-[#414042] mt-1">{variant.metaTitle}</p>
+                      </div>
+
+                      {/* Meta Description */}
+                      <div>
+                        <label className="text-[9px] font-black text-[#414042] uppercase tracking-[0.4em] opacity-40">Meta Description</label>
+                        <p className="text-xs text-[#414042] leading-relaxed mt-1">{variant.metaDescription}</p>
+                      </div>
+
+                      {/* Keywords */}
+                      <div>
+                        <label className="text-[9px] font-black text-[#414042] uppercase tracking-[0.4em] opacity-40">Keywords</label>
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {variant.keyphrases.map((kp: string, kpi: number) => (
+                            <span key={kpi} className="px-2 py-1 bg-slate-100 text-[10px] font-bold text-[#414042] rounded-md">{kp}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Rationale */}
+                      <div className="pt-2 border-t border-slate-100">
+                        <label className="text-[9px] font-black text-[#414042] uppercase tracking-[0.4em] opacity-40">Rationale</label>
+                        <p className="text-xs text-[#414042] leading-relaxed mt-1 border-l-2 pl-2.5 opacity-70" style={{ borderColor: activeProfile.accentColor }}>{variant.justification}</p>
                       </div>
                     </div>
                   </div>

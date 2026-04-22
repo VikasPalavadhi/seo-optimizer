@@ -361,14 +361,16 @@ app.post('/api/generate', async (req, res) => {
 
         ${BANKING_SCHEMA_INSTRUCTION}
 
-        ### URL GENERATION FOR VARIANTS:
-        For each SEO variant, you MUST provide a suggested URL path that:
-        - Is in lowercase with hyphens (kebab-case)
+        ### URL GENERATION FOR VARIANTS (CRITICAL):
+        For each SEO variant, you MUST provide a "url" field with a suggested URL path that:
+        - Is in lowercase with hyphens (kebab-case), starting with /en/
         - Reflects the main focus/theme of that specific variant
-        - Includes the primary keyword when possible
-        - Follows standard banking URL patterns (e.g., /personal-banking/cards/credit-cards/card-name)
-        - Is unique for each variant
-        - Keeps it concise (3-5 segments maximum)
+        - For campaigns/offers: /en/offers/{product-name-benefit} (e.g., /en/offers/bmw-mini-1.89-profit-rate)
+        - For product pages: /en/{category}/{product-name}
+        - For applications: /en/apply/{product-name}
+        - Includes the primary benefit/keyword (e.g., "75k-bonus-miles", "1.89-profit-rate", "cashback")
+        - Is unique for each variant (each variant targets a different angle)
+        - Keeps it concise (4-5 segments, max 50 characters)
 
         ### EXTRACTION REQUIREMENTS:
         For the "mainTextPreview" field, you MUST extract a COMPREHENSIVE summary including:
@@ -410,6 +412,7 @@ app.post('/api/generate', async (req, res) => {
               "h1": "string",
               "metaTitle": "string",
               "metaDescription": "string",
+              "url": "string (e.g. /en/offers/product-key-benefit)",
               "keyphrases": ["string"],
               "rationale": "string",
               "bestFor": "string",
@@ -420,6 +423,7 @@ app.post('/api/generate', async (req, res) => {
               "h1": "string",
               "metaTitle": "string",
               "metaDescription": "string",
+              "url": "string (e.g. /en/offers/product-angle-2)",
               "keyphrases": ["string"],
               "rationale": "string",
               "bestFor": "string",
@@ -430,6 +434,7 @@ app.post('/api/generate', async (req, res) => {
               "h1": "string",
               "metaTitle": "string",
               "metaDescription": "string",
+              "url": "string (e.g. /en/apply/product-name)",
               "keyphrases": ["string"],
               "rationale": "string",
               "bestFor": "string",
