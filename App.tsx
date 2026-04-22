@@ -91,7 +91,7 @@ const App: React.FC = () => {
         console.error("Failed to parse history");
       }
     }
-  }, [view, user]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveToHistory = (gen: Generation) => {
     const newHistory = [gen, ...history];
