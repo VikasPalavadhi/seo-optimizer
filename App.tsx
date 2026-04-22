@@ -96,7 +96,11 @@ const App: React.FC = () => {
   const saveToHistory = (gen: Generation) => {
     const newHistory = [gen, ...history];
     setHistory(newHistory);
-    localStorage.setItem('seo_tool_history', JSON.stringify(newHistory));
+    try {
+      localStorage.setItem('seo_tool_history', JSON.stringify(newHistory));
+    } catch (e) {
+      console.warn('History save failed (storage full?):', e);
+    }
   };
 
   const handleLogin = (username: string) => {

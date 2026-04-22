@@ -164,10 +164,10 @@ const ResultsView: React.FC<ResultsViewProps> = ({ generation, onBack }) => {
             <div className="bg-white rounded-[3.5rem] p-10 border border-slate-200 shadow-xl relative overflow-hidden">
                <h4 className="text-[11px] font-black text-[#414042] uppercase tracking-[0.5em] opacity-40 mb-10">Entity Architecture Mapping</h4>
                <div className="flex items-center justify-center gap-8 flex-wrap py-6">
-                  {generation.strategicImpact?.entityLinkage.map((entity, i) => (
+                  {generation.strategicImpact?.entityLinkage?.map((entity, i) => (
                      <React.Fragment key={i}>
                         <div className="px-8 py-4 rounded-[1.5rem] bg-white border border-slate-200 text-[#414042] font-black text-xs uppercase tracking-[0.1em] shadow-sm">{entity}</div>
-                        {i < generation.strategicImpact!.entityLinkage.length - 1 && (
+                        {i < (generation.strategicImpact?.entityLinkage?.length ?? 0) - 1 && (
                            <div className="flex items-center gap-1 opacity-20">
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                               <div className="w-6 h-[1px] bg-slate-400" />
